@@ -10,7 +10,7 @@ const AD_SETTINGS = {
     },
     // 게임 내부 하단 배너
     gameBottom: {
-        image: "https://github.com/fun-let/funlet/blob/main/images/mangsudda.PNG",
+        image: "https://raw.githubusercontent.com/fun-let/funlet/main/images/mangsudda.PNG",
         link: "https://www.youtube.com"
     },
     // 사이드바 세로 배너
