@@ -185,4 +185,197 @@
         @media (max-width: 768px) {
             .game-container { flex-direction: column; }
             .click-area { flex: 1; }
-            .shop-area { height: 50%; width: 100%; border-left: none; border-top: 1px solid #
+            .shop-area { height: 50%; width: 100%; border-left: none; border-top: 1px solid #333; }
+            .main-btn { width: 150px; height: 150px; font-size: 4rem; }
+        }
+
+        /* 초기화 버튼 */
+        .reset-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: 1px solid #555;
+            color: #555;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        
+        <div class="click-area">
+            <button onclick="resetGame()" class="reset-btn">데이터 초기화</button>
+            
+            <div class="score-board">
+                <div id="money" class="money-text">0원</div>
+                <div id="cps" class="cps-text">초당 수익: 0원</div>
+            </div>
+
+            <div class="main-btn" id="clickBtn">
+                💰
+            </div>
+        </div>
+
+        <div class="shop-area">
+            <div class="shop-header">
+                🛒 아이템 상점
+            </div>
+            <div class="shop-items" id="shopList">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // 게임 데이터 상태
+        let gameData = {
+            money: 0,
+            totalClicks: 0,
+            items: [
+                { id: 0, name: "초등학생 알바", cost: 15, mps: 1, count: 0, icon: "🎒" },
+                { id: 1, name: "중고 컴퓨터", cost: 100, mps: 5, count: 0, icon: "💻" },
+                { id: 2, name: "유튜버 데뷔", cost: 500, mps: 20, count: 0, icon: "📹" },
+                { id: 3, name: "치킨집 창업", cost: 2000, mps: 100, count: 0, icon: "🍗" },
+                { id: 4, name: "비트코인 채굴기", cost: 10000, mps: 500, count: 0, icon: "🪙" },
+                { id: 5, name: "AI 스타트업", cost: 50000, mps: 2000, count: 0, icon: "🤖" },
+                { id: 6, name: "우주 여행사", cost: 200000, mps: 10000, count: 0, icon: "🚀" }
+            ]
+        };
+
+        // 로컬 스토리지에서 데이터 불러오기
+        const savedData = localStorage.getItem('moneyTycoonSave');
+        if (savedData) {
+            gameData = JSON.parse(savedData);
+        }
+
+        const moneyEl = document.getElementById('money');
+        const cpsEl = document.getElementById('cps');
+        const shopList = document.getElementById('shopList');
+        const clickBtn = document.getElementById('clickBtn');
+
+        // 화면 업데이트 함수
+        function updateUI() {
+            moneyEl.innerText = Math.floor(gameData.money).toLocaleString() + "원";
+            
+            // 초당 수익(MPS) 계산
+            let totalMps = 0;
+            gameData.items.forEach(item => {
+                totalMps += item.mps * item.count;
+            });
+            cpsEl.innerText = "초당 수익: " + totalMps.toLocaleString() + "원";
+
+            // 상점 리스트 갱신 (비효율적이지만 간단하게 구현)
+            renderShop();
+        }
+
+        // 상점 그리기
+        function renderShop() {
+            shopList.innerHTML = ""; // 기존 목록 비우기
+            
+            gameData.items.forEach((item, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'item';
+                
+                // 돈이 충분하면 테두리 색 변경
+                if (gameData.money >= item.cost) {
+                    itemDiv.classList.add('can-buy');
+                }
+
+                itemDiv.innerHTML = `
+                    <div class="item-icon">${item.icon}</div>
+                    <div class="item-info">
+                        <div class="item-name">${item.name} <span class="item-count">x${item.count}</span></div>
+                        <div class="item-cost">${item.cost.toLocaleString()}원</div>
+                        <div style="font-size:0.8rem; color:#888;">+${item.mps}원/초</div>
+                    </div>
+                `;
+
+                // 아이템 클릭 이벤트 (구매)
+                itemDiv.onclick = () => buyItem(index);
+                
+                shopList.appendChild(itemDiv);
+            });
+        }
+
+        // 클릭 이벤트 (돈 벌기)
+        clickBtn.addEventListener('mousedown', (e) => {
+            // 기본 클릭당 1원 + 아이템 효과(지금은 단순 1원)
+            const clickValue = 1 + (gameData.items[0].count * 0.1); 
+            gameData.money += clickValue;
+            gameData.totalClicks++;
+            
+            // 클릭 효과 (숫자 띄우기)
+            createFloatingNumber(e.clientX, e.clientY, "+" + Math.floor(clickValue));
+            
+            updateUI();
+        });
+
+        // 아이템 구매 함수
+        function buyItem(index) {
+            const item = gameData.items[index];
+            if (gameData.money >= item.cost) {
+                gameData.money -= item.cost;
+                item.count++;
+                item.cost = Math.floor(item.cost * 1.5); // 가격 1.5배 증가
+                updateUI();
+                saveGame();
+            } else {
+                // 돈 부족 효과 (진동 등)
+            }
+        }
+
+        // 1초마다 자동 수익 (메인 루프)
+        setInterval(() => {
+            let mps = 0;
+            gameData.items.forEach(item => {
+                mps += item.mps * item.count;
+            });
+
+            if (mps > 0) {
+                // 1초에 한 번이 아니라 부드럽게 오르도록 0.1초마다 1/10씩 증가
+                gameData.money += mps / 10;
+                updateUI();
+            }
+        }, 100); // 0.1초마다 실행
+
+        // 자동 저장 (5초마다)
+        setInterval(() => {
+            saveGame();
+        }, 5000);
+
+        function saveGame() {
+            localStorage.setItem('moneyTycoonSave', JSON.stringify(gameData));
+        }
+
+        function resetGame() {
+            if(confirm("정말 초기화 하시겠습니까? 모든 기록이 사라집니다.")) {
+                localStorage.removeItem('moneyTycoonSave');
+                location.reload();
+            }
+        }
+
+        // 클릭 이펙트 생성 함수
+        function createFloatingNumber(x, y, text) {
+            const el = document.createElement('div');
+            el.className = 'floating-number';
+            el.innerText = text;
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            document.body.appendChild(el);
+
+            // 1초 뒤 요소 삭제 (메모리 관리)
+            setTimeout(() => {
+                el.remove();
+            }, 1000);
+        }
+
+        // 초기 실행
+        updateUI();
+
+    </script>
+</body>
+</html>
