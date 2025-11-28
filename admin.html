@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FUNLET 마스터 관리자 V4</title>
+    <title>FUNLET 마스터 관리자 V5</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background: #111; color: white; font-family: 'Noto Sans KR'; padding: 20px; margin: 0; }
         .container { max-width: 800px; margin: 0 auto; background: #222; padding: 30px; border-radius: 20px; border: 1px solid #333; }
@@ -17,73 +16,79 @@
         
         /* 탭 디자인 */
         .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #444; padding-bottom: 10px; }
-        .tab-btn { flex: 1; padding: 10px; background: transparent; border: none; color: #888; cursor: pointer; font-size: 1.1rem; font-weight: bold; }
+        .tab-btn { flex: 1; padding: 10px; background: transparent; border: none; color: #888; cursor: pointer; font-size: 1.1rem; font-weight: bold; transition:0.3s; }
+        .tab-btn:hover { color: white; }
         .tab-btn.active { color: #00ff9d; border-bottom: 3px solid #00ff9d; }
         
         /* 파일 리스트 그리드 */
-        .file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 15px; }
+        .file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 15px; max-height: 400px; overflow-y: auto; }
         .file-card { background: #2a2a2a; border: 1px solid #444; border-radius: 10px; padding: 10px; text-align: center; cursor: pointer; transition: 0.2s; }
-        .file-card:hover { border-color: #00ff9d; transform: translateY(-3px); }
-        .file-card img { width: 100%; height: 100px; object-fit: contain; background: #000; border-radius: 5px; margin-bottom: 10px; }
-        .file-name { font-size: 0.8rem; color: #ddd; word-break: break-all; }
+        .file-card:hover, .file-card.selected { border-color: #00ff9d; background: #333; }
+        .file-card img { width: 100%; height: 80px; object-fit: contain; background: #000; border-radius: 5px; margin-bottom: 5px; }
+        .file-name { font-size: 0.75rem; color: #ddd; word-break: break-all; }
         
         /* 링크 에디터 스타일 */
         .link-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; background: #2a2a2a; padding: 10px; border-radius: 8px; }
-        .link-key { width: 30%; font-weight: bold; color: #00ff9d; }
+        .link-key { width: 30%; font-weight: bold; color: #00ff9d; font-size: 0.9rem; }
         
-        button { padding: 10px 20px; background: #00ff9d; color: black; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        button:hover { background: #00cc7d; }
-        .btn-upload { width: 100%; margin-top: 10px; font-size: 1.1rem; padding: 15px; }
+        button.action-btn { width: 100%; padding: 15px; background: #00ff9d; color: black; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin-top: 20px; }
+        button.action-btn:hover { background: #00cc7d; }
 
         .hidden { display: none; }
         .loading { text-align: center; color: #888; padding: 20px; }
+        .info-txt { font-size: 0.8rem; color: #aaa; margin-top: 5px; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>🔧 FUNLET 완전 자동 관리자</h2>
+        <h2>🔧 FUNLET 마스터 관리자 V5</h2>
 
         <div class="form-group">
-            <label>🔑 관리자 토큰 (자동 저장됨)</label>
+            <label>🔑 관리자 토큰</label>
             <input type="password" id="token" placeholder="ghp_..." onchange="saveToken()">
         </div>
 
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('files')">📂 이미지 관리 (자동 스캔)</button>
-            <button class="tab-btn" onclick="switchTab('links')">🔗 배너 링크 관리</button>
+            <button class="tab-btn active" onclick="switchTab('overwrite')">🔄 이미지 교체</button>
+            <button class="tab-btn" onclick="switchTab('new')">➕ 신규 업로드</button>
+            <button class="tab-btn" onclick="switchTab('links')">🔗 배너 링크</button>
         </div>
 
-        <div id="tab-files">
-            <div class="form-group">
-                <label>1. 폴더 선택 (GitHub에서 실시간 조회)</label>
-                <select id="folderSelect" onchange="loadFiles(this.value)">
-                    <option value="">토큰을 입력하고 기다려주세요...</option>
-                </select>
-                <button onclick="scanFolders()" style="margin-top:5px; background:#444; color:white; width:auto; padding:5px 10px; font-size:0.8rem;">🔄 폴더 목록 새로고침</button>
-            </div>
+        <div id="folderSection" class="form-group">
+            <label>📂 폴더 선택 (자동 스캔)</label>
+            <select id="folderSelect" onchange="loadFiles(this.value)">
+                <option value="">토큰 확인 중...</option>
+            </select>
+            <button onclick="scanFolders()" style="margin-top:5px; background:#444; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">🔄 폴더 새로고침</button>
+        </div>
 
-            <div id="fileListArea">
-                <label>2. 교체할 이미지를 선택하세요</label>
-                <div id="fileGrid" class="file-grid">
-                    <div class="loading">폴더를 선택하면 파일이 뜹니다.</div>
-                </div>
+        <div id="tab-overwrite">
+            <label>대상 파일 선택</label>
+            <div id="fileGrid" class="file-grid">
+                <div class="loading">폴더를 선택해주세요.</div>
             </div>
+            <input type="hidden" id="selectedOverwriteName">
+        </div>
 
-            <div id="uploadForm" class="hidden" style="margin-top:20px; border-top:1px solid #444; padding-top:20px;">
-                <h3 style="color:white;">🔄 이미지 교체하기</h3>
-                <p>선택된 파일: <b id="selectedFileName" style="color:#00ff9d;"></b></p>
-                <input type="file" id="fileInput" accept="image/*">
-                <button class="btn-upload" onclick="uploadImage()">서버에 덮어쓰기</button>
-            </div>
+        <div id="tab-new" class="hidden">
+            <label>✨ 새로 만들 파일명 (영어 소문자 권장)</label>
+            <input type="text" id="newFileName" placeholder="예: new_game_thumb.jpg">
+            <p class="info-txt">* 확장자(.png, .jpg)까지 정확히 입력해주세요.</p>
+        </div>
+
+        <div id="uploadSection" class="form-group" style="margin-top: 20px; border-top: 1px solid #444; padding-top: 20px;">
+            <label>🖼️ 업로드할 이미지 선택</label>
+            <input type="file" id="fileInput" accept="image/*">
+            <button class="action-btn" onclick="uploadImage()" id="uploadBtn">서버에 전송하기</button>
+            <div id="statusBox" style="margin-top:10px; color:#ff6b6b; display:none;"></div>
         </div>
 
         <div id="tab-links" class="hidden">
-            <p style="color:#aaa; font-size:0.9rem;">* ads.json 파일에 있는 모든 배너 링크를 자동으로 불러옵니다.</p>
             <div id="linkList">
                 <div class="loading">데이터 로딩 중...</div>
             </div>
-            <button class="btn-upload" onclick="saveLinks()">모든 링크 저장하기</button>
+            <button class="action-btn" onclick="saveLinks()">모든 링크 저장하기</button>
         </div>
 
     </div>
@@ -92,6 +97,7 @@
         const USER = 'fun-let';
         const REPO = 'funlet';
         let currentPath = '';
+        let currentTab = 'overwrite';
         let currentAdsData = {};
         let adsSha = null;
 
@@ -99,7 +105,7 @@
             const t = localStorage.getItem('github_token');
             if(t) {
                 document.getElementById('token').value = t;
-                scanFolders(); // 시작하자마자 폴더 스캔
+                scanFolders();
             }
         }
 
@@ -109,46 +115,62 @@
         }
 
         function switchTab(tab) {
+            currentTab = tab;
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             event.target.classList.add('active');
-            
-            if(tab === 'files') {
-                document.getElementById('tab-files').classList.remove('hidden');
-                document.getElementById('tab-links').classList.add('hidden');
+
+            const folderSec = document.getElementById('folderSection');
+            const upSec = document.getElementById('uploadSection');
+            const tabOver = document.getElementById('tab-overwrite');
+            const tabNew = document.getElementById('tab-new');
+            const tabLinks = document.getElementById('tab-links');
+
+            if(tab === 'links') {
+                folderSec.classList.add('hidden');
+                upSec.classList.add('hidden');
+                tabOver.classList.add('hidden');
+                tabNew.classList.add('hidden');
+                tabLinks.classList.remove('hidden');
+                loadLinks();
             } else {
-                document.getElementById('tab-files').classList.add('hidden');
-                document.getElementById('tab-links').classList.remove('hidden');
-                loadLinks(); // 탭 전환 시 링크 데이터 로드
+                folderSec.classList.remove('hidden');
+                upSec.classList.remove('hidden');
+                tabLinks.classList.add('hidden');
+                
+                if(tab === 'overwrite') {
+                    tabOver.classList.remove('hidden');
+                    tabNew.classList.add('hidden');
+                    document.getElementById('uploadBtn').innerText = "선택한 파일 덮어쓰기";
+                } else {
+                    tabOver.classList.add('hidden');
+                    tabNew.classList.remove('hidden');
+                    document.getElementById('uploadBtn').innerText = "새 파일 생성하기";
+                }
             }
         }
 
-        // ==========================================
-        // 1. 폴더 및 파일 자동 스캔 기능
-        // ==========================================
+        // --- 기능 1: 폴더/파일 관리 ---
+
         async function scanFolders() {
             const token = document.getElementById('token').value;
             if(!token) return;
             const select = document.getElementById('folderSelect');
-            select.innerHTML = '<option>스캔 중...</option>';
-
+            
             try {
-                // images 폴더 안의 모든 것을 조회
                 const url = `https://api.github.com/repos/${USER}/${REPO}/contents/images`;
                 const res = await fetch(url, { headers: { Authorization: `token ${token}` } });
                 const data = await res.json();
 
-                select.innerHTML = '<option value="">-- 폴더를 선택하세요 --</option>';
-                // 루트(images/) 추가
-                select.innerHTML += `<option value="images/">images/ (기본 배너)</option>`;
-
-                // 하위 폴더 자동 추가
+                select.innerHTML = '<option value="">-- 폴더 선택 --</option>';
+                select.innerHTML += `<option value="images/">images/ (기본)</option>`;
+                
                 data.forEach(item => {
                     if(item.type === 'dir') {
                         select.innerHTML += `<option value="${item.path}/">${item.path}/</option>`;
                     }
                 });
             } catch(e) {
-                alert("폴더 스캔 실패. 토큰을 확인하세요.");
+                console.error(e);
             }
         }
 
@@ -157,8 +179,7 @@
             currentPath = path;
             const token = document.getElementById('token').value;
             const grid = document.getElementById('fileGrid');
-            grid.innerHTML = '<div class="loading">파일 불러오는 중...</div>';
-            document.getElementById('uploadForm').classList.add('hidden');
+            grid.innerHTML = '<div class="loading">로딩 중...</div>';
 
             try {
                 const url = `https://api.github.com/repos/${USER}/${REPO}/contents/${path}`;
@@ -168,92 +189,99 @@
                 grid.innerHTML = '';
                 data.forEach(item => {
                     if(item.type === 'file' && item.name.match(/\.(jpg|jpeg|png|gif)$/i)) {
-                        // 카드 생성
                         const card = document.createElement('div');
                         card.className = 'file-card';
-                        card.onclick = () => selectFile(item.name);
-                        card.innerHTML = `
-                            <img src="${item.download_url}?t=${new Date().getTime()}">
-                            <div class="file-name">${item.name}</div>
-                        `;
+                        card.onclick = () => selectFileCard(card, item.name);
+                        card.innerHTML = `<img src="${item.download_url}?t=${Date.now()}"><div class="file-name">${item.name}</div>`;
                         grid.appendChild(card);
                     }
                 });
-                
-                if(grid.innerHTML === '') grid.innerHTML = '<div class="loading">이미지 파일이 없습니다.</div>';
-
-            } catch(e) {
-                grid.innerHTML = '<div class="loading">불러오기 실패</div>';
-            }
+                if(grid.innerHTML === '') grid.innerHTML = '<div class="loading">이미지가 없습니다.</div>';
+            } catch(e) { grid.innerHTML = '로드 실패'; }
         }
 
-        function selectFile(name) {
-            document.getElementById('uploadForm').classList.remove('hidden');
-            document.getElementById('selectedFileName').innerText = name;
-            // 스크롤 이동
-            document.getElementById('uploadForm').scrollIntoView({behavior: "smooth"});
+        function selectFileCard(card, name) {
+            document.querySelectorAll('.file-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            document.getElementById('selectedOverwriteName').value = name;
         }
 
-        // ==========================================
-        // 2. 이미지 업로드 (덮어쓰기)
-        // ==========================================
         async function uploadImage() {
             const token = document.getElementById('token').value;
-            const fileName = document.getElementById('selectedFileName').innerText;
             const fileInput = document.getElementById('fileInput');
+            const statusBox = document.getElementById('statusBox');
             
-            if(fileInput.files.length === 0) { alert("파일을 선택해주세요."); return; }
+            let fileName = "";
+            
+            if(currentTab === 'overwrite') {
+                fileName = document.getElementById('selectedOverwriteName').value;
+                if(!fileName) { alert("교체할 파일을 목록에서 선택해주세요."); return; }
+            } else {
+                fileName = document.getElementById('newFileName').value;
+                if(!fileName) { alert("새 파일명을 입력해주세요."); return; }
+            }
+
+            if(fileInput.files.length === 0) { alert("업로드할 이미지를 선택해주세요."); return; }
 
             const file = fileInput.files[0];
-            const fullPath = currentPath + fileName; // 경로 + 파일명
-
-            if(!confirm(`[${fileName}] 파일을 정말 교체하시겠습니까?`)) return;
+            const fullPath = currentPath + fileName;
+            const btn = document.getElementById('uploadBtn');
+            
+            btn.disabled = true;
+            statusBox.style.display = 'block';
+            statusBox.innerText = "업로드 중...";
 
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = async function() {
                 const content = reader.result.split(',')[1];
                 
-                // 기존 파일 SHA 조회 (덮어쓰기 필수)
+                // SHA 조회 (덮어쓰기용)
                 let sha = null;
                 try {
                     const check = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${fullPath}`, {
                         headers: { Authorization: `token ${token}` }
                     });
-                    const d = await check.json();
-                    sha = d.sha;
+                    if(check.ok) {
+                        const d = await check.json();
+                        sha = d.sha;
+                    }
                 } catch(e) {}
 
-                // 업로드
+                // 신규인데 파일이 있으면 경고
+                if(currentTab === 'new' && sha) {
+                    if(!confirm("이미 같은 이름의 파일이 존재합니다. 덮어쓰시겠습니까?")) {
+                        btn.disabled = false; statusBox.innerText = "취소됨"; return;
+                    }
+                }
+
+                const bodyData = { message: `Update ${fileName}`, content: content };
+                if(sha) bodyData.sha = sha;
+
                 try {
                     const res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${fullPath}`, {
                         method: 'PUT',
-                        headers: {
-                            'Authorization': `token ${token}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            message: `Update ${fileName}`,
-                            content: content,
-                            sha: sha
-                        })
+                        headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify(bodyData)
                     });
 
                     if(res.ok) {
-                        alert("성공! 이미지가 교체되었습니다.\n사이트 반영까지 1~2분 걸립니다.");
-                        loadFiles(currentPath); // 목록 새로고침
+                        const resData = await res.json();
+                        // 결과 표시 (주소 복사 기능 추가)
+                        const fileUrl = `./${fullPath}`;
+                        statusBox.innerHTML = `✅ 성공!<br>파일명: <b>${fileName}</b><br>코드용 주소: <span style="color:#00ff9d; user-select:all;">${fileUrl}</span>`;
+                        alert("업로드 완료! (1~2분 소요)");
+                        if(currentTab === 'new') loadFiles(currentPath); // 목록 갱신
                     } else {
-                        alert("업로드 실패.");
+                        const err = await res.json();
+                        statusBox.innerText = "실패: " + err.message;
                     }
-                } catch(e) {
-                    alert("오류 발생: " + e);
-                }
+                } catch(e) { statusBox.innerText = "오류: " + e; }
+                btn.disabled = false;
             };
         }
 
-        // ==========================================
-        // 3. 배너 링크 관리 (JSON 자동 파싱)
-        // ==========================================
+        // --- 기능 2: 링크 관리 --- (기존 로직 유지)
         async function loadLinks() {
             const token = document.getElementById('token').value;
             const list = document.getElementById('linkList');
@@ -269,68 +297,48 @@
                 currentAdsData = JSON.parse(decoded);
 
                 list.innerHTML = '';
-                // JSON의 모든 키를 자동으로 루프 돌면서 입력창 생성
                 for (const [key, value] of Object.entries(currentAdsData)) {
-                    // 키 이름 좀 더 예쁘게 보여주기
-                    let labelName = key;
-                    if(key === 'hero') labelName = '✨ 메인 타이틀 (Hero)';
-                    if(key === 'mainTop') labelName = '🖥️ 메인 상단 배너';
-                    if(key === 'gameBottom') labelName = '📱 게임 하단 배너';
-                    if(key === 'sidebar') labelName = '▐ 사이드바 배너';
+                    // 키 이름 한글화
+                    let label = key;
+                    if(key === 'hero') label = '메인 타이틀 배경';
+                    if(key === 'mainTop') label = '메인 상단 배너';
+                    if(key === 'gameBottom') label = '게임 하단 배너';
+                    if(key === 'sidebar') label = '사이드바 배너';
 
                     const row = document.createElement('div');
                     row.className = 'link-row';
                     row.innerHTML = `
-                        <div class="link-key">${labelName}</div>
-                        <input type="text" id="link-${key}" value="${value.link || '#'}" placeholder="이동할 주소 입력 (https://...)">
+                        <div class="link-key">${label}</div>
+                        <input type="text" id="link-${key}" value="${value.link || '#'}" placeholder="URL 입력">
                     `;
                     list.appendChild(row);
                 }
-
-            } catch(e) {
-                list.innerHTML = '<div class="loading">불러오기 실패. ads.json 파일이 있는지 확인하세요.</div>';
-            }
+            } catch(e) { list.innerHTML = '로드 실패'; }
         }
 
         async function saveLinks() {
             const token = document.getElementById('token').value;
-            
-            // 입력된 값으로 데이터 업데이트
             for (const key of Object.keys(currentAdsData)) {
                 const input = document.getElementById(`link-${key}`);
-                if(input) {
-                    currentAdsData[key].link = input.value;
-                }
+                if(input) currentAdsData[key].link = input.value;
             }
 
-            // JSON 저장
             try {
                 const content = btoa(unescape(encodeURIComponent(JSON.stringify(currentAdsData, null, 2))));
                 const url = `https://api.github.com/repos/${USER}/${REPO}/contents/data/ads.json`;
                 
                 const res = await fetch(url, {
                     method: 'PUT',
-                    headers: {
-                        'Authorization': `token ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        message: "Update Links via Admin V4",
-                        content: content,
-                        sha: adsSha
-                    })
+                    headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: "Update Links", content: content, sha: adsSha })
                 });
 
                 if(res.ok) {
                     const d = await res.json();
-                    adsSha = d.content.sha; // SHA 갱신
-                    alert("링크 저장 완료! 바로 적용됩니다.");
-                } else {
-                    alert("저장 실패");
-                }
-            } catch(e) {
-                alert("오류: " + e);
-            }
+                    adsSha = d.content.sha;
+                    alert("저장되었습니다!");
+                } else { alert("저장 실패"); }
+            } catch(e) { alert("오류: " + e); }
         }
     </script>
 </body>
