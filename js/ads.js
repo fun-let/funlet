@@ -1,77 +1,78 @@
-// [Funlet 광고 & 이미지 통합 관리 시스템 V4]
-// 히어로 배경 이미지까지 관리자가 제어합니다.
+// [Funlet 광고 시스템 V5]
+// data/ads.json 파일을 읽어서 광고를 표시합니다.
 
-const version = new Date().getTime(); // 캐시 방지용
+const USER = 'fun-let'; // 사장님 아이디
+const REPO = 'funlet';  // 저장소 이름
 
-const AD_SETTINGS = {
-    // 0. 메인 타이틀 배경 (Hero Section)
-    hero: {
-        image: `https://fun-let.github.io/funlet/images/bg_hero.png?v=${version}`
-    },
+// 데이터 파일 주소 (캐시 방지 적용)
+const DATA_URL = `https://${USER}.github.io/${REPO}/data/ads.json?v=${new Date().getTime()}`;
 
-    // 1. 메인 상단 가로 배너 (PC)
-    mainTop: {
-        image: `https://fun-let.github.io/funlet/images/banner_main_pc.png?v=${version}`,
-        link: "https://www.google.com"
-    },
+async function loadAds() {
+    try {
+        // 1. 장부(JSON) 가져오기
+        const response = await fetch(DATA_URL);
+        const adData = await response.json();
 
-    // 2. 게임 공통 하단 배너 (모바일)
-    gameBottom: {
-        image: `https://fun-let.github.io/funlet/images/banner_game_bottom.png?v=${version}`,
-        link: "https://www.youtube.com"
-    },
+        // 2. 각 위치에 광고 넣기
+        
+        // (0) 히어로 배경
+        const heroSection = document.getElementById('hero-section');
+        if (heroSection && adData.hero && adData.hero.image) {
+            heroSection.style.backgroundImage = `url('${adData.hero.image}')`;
+            // 히어로는 배경이라 링크 기능은 보통 버튼에 넣지만, 필요시 구현 가능
+        }
 
-    // 3. 사이드바 세로 배너
-    sidebar: {
-        image: `https://fun-let.github.io/funlet/images/banner_sidebar.png?v=${version}`,
-        link: "#"
+        // (1) 메인 상단
+        injectAd('ad-main-top', adData.mainTop, 'cover');
+
+        // (2) 게임 하단
+        injectAd('ad-game-bottom', adData.gameBottom, 'contain');
+
+        // (3) 사이드바
+        injectAd('ad-sidebar', adData.sidebar, 'cover');
+
+    } catch (error) {
+        console.error("광고 로딩 실패:", error);
     }
-};
+}
 
-function loadAds() {
-    const placeholderHTML = `
+// 광고 HTML 생성기
+function injectAd(elementId, data, fitStyle) {
+    const container = document.getElementById(elementId);
+    if (!container) return;
+
+    // 데이터가 없거나 이미지가 없으면 대체 문구 표시
+    if (!data || !data.image) {
+        container.innerHTML = getPlaceholderHTML();
+        return;
+    }
+
+    // 링크가 없으면 # 처리
+    const linkUrl = data.link || "#";
+
+    const img = new Image();
+    img.src = data.image;
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.objectFit = fitStyle;
+    img.style.borderRadius = 'inherit';
+
+    img.onload = function() {
+        container.innerHTML = `<a href="${linkUrl}" target="_blank" style="display:block; width:100%; height:100%; cursor:pointer;">${img.outerHTML}</a>`;
+    };
+
+    img.onerror = function() {
+        container.innerHTML = getPlaceholderHTML();
+    };
+}
+
+function getPlaceholderHTML() {
+    return `
         <div style="width:100%; height:100%; background: linear-gradient(45deg, #1a1a2e, #16213e); display:flex; flex-direction:column; align-items:center; justify-content:center; color:#666; font-family:'Noto Sans KR'; text-align:center; border: 1px dashed #333;">
-            <i class="fa-solid fa-bullhorn" style="font-size:1.5rem; color:#00ff9d; margin-bottom:10px;"></i>
-            <div style="font-weight:bold; color:#ddd;">광고주님을 모십니다</div>
-            <div style="font-size:0.8rem;">YOUR AD HERE</div>
+            <div style="font-weight:bold; color:#ddd; font-size:0.8rem;">광고주님을 모십니다</div>
+            <div style="font-size:0.7rem;">YOUR AD HERE</div>
         </div>
     `;
-
-    // [추가됨] 히어로 배경 이미지 적용 로직
-    const heroSection = document.getElementById('hero-section');
-    if (heroSection) {
-        // 이미지가 실제로 존재하는지 확인 후 적용 (없으면 CSS 기본값 유지)
-        const img = new Image();
-        img.src = AD_SETTINGS.hero.image;
-        img.onload = function() {
-            heroSection.style.backgroundImage = `url('${AD_SETTINGS.hero.image}')`;
-        };
-    }
-
-    // 광고 배너 적용 로직
-    function injectAd(elementId, adData, fitStyle) {
-        const container = document.getElementById(elementId);
-        if (!container) return;
-
-        const img = new Image();
-        img.src = adData.image;
-        img.style.width = '100%';
-        img.style.height = '100%';
-        img.style.objectFit = fitStyle;
-        img.style.borderRadius = 'inherit';
-
-        img.onload = function() {
-            container.innerHTML = `<a href="${adData.link}" target="_blank" style="display:block; width:100%; height:100%;">${img.outerHTML}</a>`;
-        };
-
-        img.onerror = function() {
-            container.innerHTML = placeholderHTML;
-        };
-    }
-
-    injectAd('ad-main-top', AD_SETTINGS.mainTop, 'cover');
-    injectAd('ad-game-bottom', AD_SETTINGS.gameBottom, 'contain');
-    injectAd('ad-sidebar', AD_SETTINGS.sidebar, 'cover');
 }
 
 window.addEventListener('DOMContentLoaded', loadAds);
