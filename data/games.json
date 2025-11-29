@@ -26,5 +26,12 @@
     "category": "social",
     "desc": "Social / 심리테스트",
     "thumb": "images/telepathy/telepathy_thumb.jpg"
+  },
+  {
+    "id": "space-merge",
+    "title": "우주 합치기",
+    "category": "puzzle",
+    "desc": "PUZZLE Game",
+    "thumb": "images/thumbnails/space-merge_thumb.jpg"
   }
 ]
