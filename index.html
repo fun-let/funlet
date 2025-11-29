@@ -11,13 +11,14 @@
     <style>
         :root { --primary: #00ff9d; --bg-body: #0f0f1a; --bg-sidebar: #151525; --bg-card: #1e1e2f; --text-main: #ffffff; --text-muted: #8f8fba; }
         body { margin: 0; padding: 0; background-color: var(--bg-body); color: var(--text-main); font-family: 'Noto Sans KR', sans-serif; overflow-x: hidden; }
+        
         .app-container { display: flex; min-height: 100vh; position: relative; }
         .sidebar { width: 250px; background-color: var(--bg-sidebar); padding: 20px; border-right: 1px solid #2a2a40; display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 1000; transition: transform 0.3s ease; }
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; display: none; }
         .menu-overlay.active { display: block; }
         .logo { font-size: 1.8rem; color: var(--primary); text-decoration: none; margin-bottom: 40px; display: flex; align-items: center; gap: 10px; font-family: 'Black Han Sans', sans-serif; }
         .menu-label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; font-weight: 500; }
-        .menu-item { display: flex; align-items: center; padding: 12px 15px; color: var(--text-muted); text-decoration: none; border-radius: 10px; margin-bottom: 5px; transition: 0.3s; }
+        .menu-item { display: flex; align-items: center; padding: 12px 15px; color: var(--text-muted); text-decoration: none; border-radius: 10px; margin-bottom: 5px; transition: 0.3s; cursor: pointer; }
         .menu-item:hover, .menu-item.active { background: rgba(0, 255, 157, 0.05); color: var(--primary); }
         .menu-item i { width: 25px; }
         .sidebar-ad { margin-top: auto; height: 200px; border-radius: 15px; border: 1px solid #2a2a40; }
@@ -47,19 +48,24 @@
     </style>
 </head>
 <body>
-   <nav class="sidebar" id="sidebar">
-    <a href="./index.html" class="logo"><i class="fa-solid fa-gamepad"></i> FUNLET</a>
-    <button onclick="toggleMenu()" style="position:absolute; top:20px; right:20px; background:none; border:none; color:white; font-size:1.5rem; cursor:pointer; display:none;" id="closeBtn"><i class="fa-solid fa-xmark"></i></button>
+    <div class="menu-overlay" onclick="toggleMenu()"></div>
+    <div class="app-container">
+        <nav class="sidebar" id="sidebar">
+            <a href="./index.html" class="logo"><i class="fa-solid fa-gamepad"></i> FUNLET</a>
+            <button onclick="toggleMenu()" style="position:absolute; top:20px; right:20px; background:none; border:none; color:white; font-size:1.5rem; cursor:pointer; display:none;" id="closeBtn"><i class="fa-solid fa-xmark"></i></button>
 
-    <div class="menu-label">MENU</div>
-    <a href="#" onclick="filterGames('all')" class="menu-item active"><i class="fa-solid fa-house"></i> 홈</a>
-    
-    <div class="menu-label" style="margin-top: 20px;">CATEGORY</div>
-    
-    <div id="categoryMenu"></div> 
+            <div class="menu-label">MENU</div>
+            <a href="#" onclick="filterGames('all')" class="menu-item active"><i class="fa-solid fa-house"></i> 홈</a>
+            
+            <div class="menu-label" style="margin-top: 20px;">CATEGORY</div>
+            
+            <div id="categoryMenu">
+                <div style="padding:10px; color:#666; font-size:0.8rem;">로딩 중...</div>
+            </div>
 
-    <div class="sidebar-ad" id="ad-sidebar"></div>
-</nav>
+            <div class="sidebar-ad" id="ad-sidebar"></div>
+        </nav>
+
         <main class="main-content">
             <header class="top-header">
                 <div style="display:flex; align-items:center; width:100%;">
@@ -89,23 +95,47 @@
     
     <script src="./js/ads.js"></script>
     <script>
-        // 전역 변수
         let allGames = [];
+        let allCategories = [];
 
-        // 페이지 로드 시 게임 데이터 불러오기
+        // 페이지 로드 시 데이터 불러오기
         window.onload = async function() {
             const time = new Date().getTime();
+            
+            // 1. 카테고리 로드 (어드민에서 저장한 파일)
             try {
-                const res = await fetch(`./data/games.json?v=${time}`);
-                allGames = await res.json();
-                renderGames(allGames);
-            } catch(e) {
-                console.error("게임 목록 로드 실패:", e);
-                document.getElementById('gameGrid').innerHTML = '<p style="color:white;">게임 목록을 불러오지 못했습니다.</p>';
-            }
+                const catRes = await fetch(`./data/categories.json?v=${time}`);
+                if(catRes.ok) {
+                    allCategories = await catRes.json();
+                    renderMenu(allCategories);
+                } else {
+                    console.log("카테고리 파일 없음");
+                }
+            } catch(e) { console.error(e); }
+
+            // 2. 게임 로드 (어드민에서 저장한 파일)
+            try {
+                const gameRes = await fetch(`./data/games.json?v=${time}`);
+                if(gameRes.ok) {
+                    allGames = await gameRes.json();
+                    renderGames(allGames);
+                } else {
+                    document.getElementById('gameGrid').innerHTML = '<p style="color:#888;">등록된 게임이 없습니다.</p>';
+                }
+            } catch(e) { console.error(e); }
         };
 
-        // 게임 그리기 함수
+        // 메뉴 그리기
+        function renderMenu(categories) {
+            const menuContainer = document.getElementById('categoryMenu');
+            let html = '';
+            categories.forEach(cat => {
+                html += `<a href="#" onclick="filterGames('${cat.id}')" class="menu-item"><i class="fa-solid ${cat.icon}"></i> ${cat.name}</a>`;
+            });
+            menuContainer.innerHTML = html;
+        }
+
+        // 게임 그리기
         function renderGames(games) {
             const grid = document.getElementById('gameGrid');
             grid.innerHTML = "";
@@ -117,7 +147,7 @@
 
             games.forEach(game => {
                 const html = `
-                <a href="./games/${game.id}/index.html" class="game-card">
+                <a href="./games/${game.id}/index.html" class="game-card" data-title="${game.title} ${game.desc}">
                     <div class="thumb-wrapper">
                         <img src="${game.thumb}" onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
                     </div>
@@ -131,21 +161,19 @@
             });
         }
 
-        // 카테고리 필터링
+        // 필터링
         function filterGames(category) {
-            // 메뉴 활성화 표시
             document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
             event.currentTarget.classList.add('active');
-            
-            // 모바일 메뉴 닫기
             toggleMenu(false);
 
             if(category === 'all') {
                 document.getElementById('pageTitle').innerText = "🔥 전체 게임 목록";
                 renderGames(allGames);
             } else {
+                const catName = allCategories.find(c => c.id === category)?.name || category;
+                document.getElementById('pageTitle').innerText = `📂 ${catName}`;
                 const filtered = allGames.filter(g => g.category === category);
-                document.getElementById('pageTitle').innerText = `📂 ${category.toUpperCase()} 게임`;
                 renderGames(filtered);
             }
         }
@@ -165,7 +193,6 @@
             closeBtn.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
         }
 
-        // 검색 기능
         const searchInput = document.getElementById('searchInput');
         searchInput.addEventListener('keyup', function(e) {
             const term = e.target.value.toLowerCase();
@@ -177,4 +204,3 @@
     </script>
 </body>
 </html>
-
