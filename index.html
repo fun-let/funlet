@@ -3,93 +3,299 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FUNLET - Cyber Arcade</title>
+    <title>FUNLET - Play Beyond Imagination</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        :root { --primary: #00ff9d; --bg-body: #0f0f1a; --bg-sidebar: #151525; --bg-card: #1e1e2f; --text-main: #ffffff; --text-muted: #8f8fba; }
-        body { margin: 0; padding: 0; background-color: var(--bg-body); color: var(--text-main); font-family: 'Noto Sans KR', sans-serif; overflow-x: hidden; }
+        /* [디자인 시스템] */
+        :root {
+            --primary: #00ff9d;       /* 포인트 컬러 (형광 초록) */
+            --bg-body: #0a0a0f;       /* 더 깊은 다크 배경 */
+            --bg-sidebar: #121218;    /* 사이드바 배경 */
+            --bg-card: #1c1c26;       /* 카드 배경 */
+            --text-main: #ffffff;
+            --text-muted: #888899;    /* 세련된 회색 */
+            --border: #2a2a35;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: 'Noto Sans KR', sans-serif;
+            font-weight: 300; /* 기본 폰트 얇게 */
+            overflow-x: hidden;
+        }
+        
+        a { text-decoration: none; color: inherit; transition: 0.3s; }
         
         .app-container { display: flex; min-height: 100vh; position: relative; }
-        .sidebar { width: 250px; background-color: var(--bg-sidebar); padding: 20px; border-right: 1px solid #2a2a40; display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 1000; transition: transform 0.3s ease; }
-        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; display: none; }
-        .menu-overlay.active { display: block; }
-        .logo { font-size: 1.8rem; color: var(--primary); text-decoration: none; margin-bottom: 40px; display: flex; align-items: center; gap: 10px; font-family: 'Black Han Sans', sans-serif; }
-        .menu-label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; font-weight: 500; }
-        .menu-item { display: flex; align-items: center; padding: 12px 15px; color: var(--text-muted); text-decoration: none; border-radius: 10px; margin-bottom: 5px; transition: 0.3s; cursor: pointer; }
-        .menu-item:hover, .menu-item.active { background: rgba(0, 255, 157, 0.05); color: var(--primary); }
-        .menu-item i { width: 25px; }
-        .sidebar-ad { margin-top: auto; height: 200px; border-radius: 15px; border: 1px solid #2a2a40; }
-        .main-content { flex: 1; margin-left: 290px; padding: 30px 40px; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .menu-toggle { display: none; font-size: 1.5rem; color: white; cursor: pointer; background: none; border: none; margin-right: 15px; }
-        .search-bar { background: var(--bg-card); padding: 12px 20px; border-radius: 30px; display: flex; align-items: center; width: 400px; border: 1px solid #2a2a40; }
-        .search-bar input { background: none; border: none; color: white; margin-left: 10px; width: 100%; outline: none; color: white; }
-        .hero-section { width: 100%; height: 350px; border-radius: 25px; position: relative; margin-bottom: 30px; display: flex; align-items: center; padding: 0 50px; background-image: url('https://images.unsplash.com/photo-1511512578047-dfb367046420?w=1200&q=80'); background-size: cover; background-position: center; }
-        .hero-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(90deg, rgba(15,15,26,0.9) 0%, rgba(15,15,26,0.4) 100%); }
-        .hero-content { position: relative; z-index: 10; max-width: 600px; }
-        .hero-title { font-family: 'Black Han Sans'; font-size: 3.2rem; margin-bottom: 15px; line-height: 1.1; }
-        .hero-title span { color: var(--primary); }
-        .hero-desc { font-size: 1.1rem; color: #ccc; }
-        .top-ad-banner { width: 100%; height: 100px; border-radius: 15px; margin-bottom: 40px; border: 1px solid #2a2a40; }
-        .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 30px; }
-        .game-card { background-color: var(--bg-card); border-radius: 20px; overflow: hidden; text-decoration: none; color: white; display: block; border: 1px solid rgba(255,255,255,0.05); cursor: pointer;}
-        .thumb-wrapper { position: relative; padding-top: 100%; background: #151525; }
-        .thumb-wrapper img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-        .game-info { padding: 20px; }
-        .footer { padding: 30px; text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-top: 50px; border-top: 1px solid #2a2a40; }
+
+        /* --- [1] 사이드바 (프로페셔널 스타일) --- */
+        .sidebar {
+            width: 260px; background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex; flex-direction: column;
+            position: fixed; height: 100vh; z-index: 1000;
+            padding: 30px 20px; box-sizing: border-box;
+            transition: transform 0.3s ease;
+        }
         
+        .logo {
+            font-family: 'Montserrat', sans-serif; /* 로고 전용 폰트 */
+            font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;
+            color: var(--text-main); margin-bottom: 50px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .logo span { color: var(--primary); }
+
+        .menu-group { margin-bottom: 30px; }
+        .menu-title {
+            font-size: 0.7rem; color: var(--text-muted);
+            margin-bottom: 15px; font-weight: 700; letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .menu-item {
+            display: flex; align-items: center; padding: 12px 15px;
+            color: var(--text-muted); border-radius: 8px;
+            margin-bottom: 5px; font-weight: 400; /* 얇은 폰트 */
+            font-size: 0.95rem;
+        }
+        .menu-item:hover, .menu-item.active {
+            background: rgba(0, 255, 157, 0.05);
+            color: var(--primary);
+            font-weight: 500; /* 활성화되면 살짝 두껍게 */
+        }
+        .menu-item i { width: 25px; font-size: 1rem; }
+
+        /* 사이드바 하단 (소셜 & 광고) */
+        .sidebar-footer { margin-top: auto; }
+        .social-links { display: flex; gap: 15px; margin-bottom: 20px; padding-left: 5px; }
+        .social-btn { color: var(--text-muted); font-size: 1.2rem; }
+        .social-btn:hover { color: var(--primary); transform: translateY(-3px); }
+        .sidebar-ad {
+            height: 250px; border-radius: 12px; border: 1px dashed var(--border);
+            background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center;
+        }
+
+        /* --- [2] 메인 컨텐츠 --- */
+        .main-content {
+            flex: 1; margin-left: 260px; padding: 40px 60px;
+            max-width: 1600px;
+        }
+        
+        /* 헤더 (검색 & 알림) */
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .menu-toggle { display: none; font-size: 1.5rem; color: white; background: none; border: none; cursor: pointer; }
+        
+        .search-container {
+            position: relative; width: 400px;
+        }
+        .search-bar {
+            background: var(--bg-card); padding: 14px 20px; border-radius: 50px;
+            display: flex; align-items: center; border: 1px solid var(--border);
+            transition: 0.3s;
+        }
+        .search-bar:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 255, 157, 0.15);
+        }
+        .search-bar input {
+            background: none; border: none; color: white; margin-left: 10px; width: 100%;
+            outline: none; font-size: 0.95rem; font-weight: 300;
+        }
+
+        /* 히어로 섹션 */
+        .hero-section {
+            width: 100%; height: 320px; border-radius: 20px; position: relative;
+            margin-bottom: 40px; display: flex; align-items: center; padding: 0 60px;
+            background-size: cover; background-position: center;
+            overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            /* 기본 배경색 (이미지 로딩 전) */
+            background-color: #1a1a2e;
+        }
+        .hero-overlay {
+            position: absolute; top:0; left:0; width:100%; height:100%;
+            background: linear-gradient(90deg, rgba(10,10,15,0.95) 0%, rgba(10,10,15,0.4) 60%, transparent 100%);
+        }
+        .hero-content { position: relative; z-index: 10; max-width: 600px; }
+        .hero-badge {
+            background: var(--primary); color: black; font-weight: 700; font-size: 0.8rem;
+            padding: 5px 12px; border-radius: 20px; display: inline-block; margin-bottom: 15px;
+        }
+        .hero-title {
+            font-family: 'Montserrat', sans-serif; font-size: 3.5rem; font-weight: 800;
+            margin: 0 0 15px 0; line-height: 1.1; letter-spacing: -1px;
+        }
+        .hero-title span { color: var(--primary); }
+        .hero-desc { font-size: 1.1rem; color: #ccc; font-weight: 300; line-height: 1.6; }
+
+        /* 상단 배너 */
+        .top-ad-banner {
+            width: 100%; height: 100px; border-radius: 12px; margin-bottom: 50px;
+            border: 1px solid var(--border); background: #000;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+
+        /* 섹션 제목 */
+        .section-header {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 25px;
+            border-bottom: 1px solid var(--border); padding-bottom: 15px;
+        }
+        .section-title { font-size: 1.4rem; font-weight: 700; color: white; margin: 0; }
+        .section-line { height: 3px; width: 30px; background: var(--primary); border-radius: 2px; }
+
+        /* 게임 그리드 */
+        .game-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px;
+        }
+        .game-card {
+            background-color: var(--bg-card); border-radius: 16px; overflow: hidden;
+            border: 1px solid transparent; cursor: pointer; transition: 0.3s;
+            display: flex; flex-direction: column; height: 100%;
+        }
+        .game-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 255, 157, 0.1);
+        }
+        .thumb-wrapper {
+            position: relative; padding-top: 100%; /* 1:1 비율 */
+            background: #151525; overflow: hidden;
+        }
+        .thumb-wrapper img {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; transition: 0.5s;
+        }
+        .game-card:hover .thumb-wrapper img { transform: scale(1.1); }
+        .game-info { padding: 15px; flex: 1; display: flex; flex-direction: column; }
+        .game-title { font-size: 1rem; font-weight: 500; margin: 0 0 5px 0; }
+        .game-tags { font-size: 0.75rem; color: var(--text-muted); font-weight: 300; }
+
+        /* [NEW] 비즈니스 푸터 */
+        .site-footer {
+            margin-top: 80px; padding-top: 40px; border-top: 1px solid var(--border);
+            color: var(--text-muted); font-size: 0.85rem; font-weight: 300;
+        }
+        .footer-content {
+            display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 30px;
+        }
+        .footer-brand h3 { color: white; margin: 0 0 10px 0; font-family: 'Montserrat', sans-serif; }
+        .footer-links { display: flex; gap: 20px; }
+        .footer-links a:hover { color: var(--primary); text-decoration: underline; }
+        .copyright { margin-top: 30px; text-align: center; opacity: 0.6; font-size: 0.75rem; }
+
+        /* 모바일 오버레이 */
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 900; display: none; backdrop-filter: blur(5px); }
+        .menu-overlay.active { display: block; }
+
+        /* 반응형 (모바일) */
         @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); width: 250px; } .sidebar.active { transform: translateX(0); } .menu-toggle { display: block; }
-            .main-content { margin-left: 0; padding: 20px; } .search-bar { width: 100%; } .hero-section { padding: 20px; height: 250px; } .hero-title { font-size: 2rem; } .game-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+            .sidebar { transform: translateX(-100%); width: 280px; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 20px; }
+            .menu-toggle { display: block; }
+            .search-container { width: 100%; }
+            .hero-section { padding: 30px; height: 280px; }
+            .hero-title { font-size: 2.2rem; }
+            .hero-content { max-width: 100%; }
+            .game-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+            .footer-content { flex-direction: column; align-items: center; text-align: center; }
         }
     </style>
 </head>
 <body>
+
     <div class="menu-overlay" onclick="toggleMenu()"></div>
+
     <div class="app-container">
         <nav class="sidebar" id="sidebar">
-            <a href="./index.html" class="logo"><i class="fa-solid fa-gamepad"></i> FUNLET</a>
-            <button onclick="toggleMenu()" style="position:absolute; top:20px; right:20px; background:none; border:none; color:white; font-size:1.5rem; cursor:pointer; display:none;" id="closeBtn"><i class="fa-solid fa-xmark"></i></button>
-
-            <div class="menu-label">MENU</div>
-            <a href="#" onclick="filterGames('all')" class="menu-item active"><i class="fa-solid fa-house"></i> 홈</a>
+            <a href="./index.html" class="logo">
+                <i class="fa-solid fa-gamepad"></i> <span>FUNLET</span>
+            </a>
             
-            <div class="menu-label" style="margin-top: 20px;">CATEGORY</div>
+            <div class="menu-group">
+                <div class="menu-title">Main Menu</div>
+                <a href="#" onclick="filterGames('all')" class="menu-item active">
+                    <i class="fa-solid fa-house"></i> 홈 (Home)
+                </a>
+            </div>
             
-            <div id="categoryMenu">
-                <div style="padding:10px; color:#666; font-size:0.8rem;">로딩 중...</div>
+            <div class="menu-group">
+                <div class="menu-title">Categories</div>
+                <div id="categoryMenu">
+                    <div style="padding:10px; color:#444; font-size:0.8rem;">Loading...</div>
+                </div>
             </div>
 
-            <div class="sidebar-ad" id="ad-sidebar"></div>
+            <div class="sidebar-footer">
+                <div class="menu-title">Follow Us</div>
+                <div class="social-links">
+                    <a href="https://instagram.com" target="_blank" class="social-btn"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://youtube.com" target="_blank" class="social-btn"><i class="fa-brands fa-youtube"></i></a>
+                    <a href="https://github.com/fun-let" target="_blank" class="social-btn"><i class="fa-brands fa-github"></i></a>
+                    <a href="mailto:contact@funlet.io" class="social-btn"><i class="fa-solid fa-envelope"></i></a>
+                </div>
+                <div class="sidebar-ad" id="ad-sidebar"></div>
+            </div>
         </nav>
 
         <main class="main-content">
             <header class="top-header">
-                <div style="display:flex; align-items:center; width:100%;">
-                    <button class="menu-toggle" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></button>
-                    <div class="search-bar">
-                        <i class="fa-solid fa-magnifying-glass" style="color:var(--text-muted);"></i>
-                        <input type="text" id="searchInput" placeholder="게임 검색...">
+                <div style="display:flex; align-items:center; width:100%; gap: 15px;">
+                    <button class="menu-toggle" onclick="toggleMenu()">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="search-container">
+                        <div class="search-bar">
+                            <i class="fa-solid fa-magnifying-glass" style="color:var(--text-muted);"></i>
+                            <input type="text" id="searchInput" placeholder="Search games...">
+                        </div>
                     </div>
                 </div>
+                <div style="display:flex; gap:20px; align-items:center; display:none; /* 모바일 공간 부족으로 일단 숨김 */ @media(min-width:768px){display:flex;}">
+                    <i class="fa-regular fa-bell" style="font-size:1.2rem; color:var(--text-muted); cursor:pointer;"></i>
+                    <div style="width:35px; height:35px; background:linear-gradient(45deg, var(--primary), #00ccff); border-radius:50%;"></div>
+                </div>
             </header>
+
             <section class="hero-section" id="hero-section">
                  <div class="hero-overlay"></div>
                  <div class="hero-content">
+                     <span class="hero-badge">NEW SEASON</span>
                      <h1 class="hero-title">PLAY BEYOND<br><span>IMAGINATION</span></h1>
-                     <p class="hero-desc">설치 없이 바로 시작하는 재미!</p>
+                     <p class="hero-desc">설치도, 로그인도 필요 없는<br>무한한 재미의 세계로 초대합니다.</p>
                  </div>
             </section>
+            
             <div class="top-ad-banner" id="ad-main-top"></div>
             
-            <h2 id="pageTitle" style="font-family:'Black Han Sans'; font-size:1.5rem; margin-bottom:20px; color:white;">🔥 전체 게임 목록</h2>
+            <div class="section-header">
+                <div class="section-line"></div>
+                <h2 class="section-title" id="pageTitle">Trending Games</h2>
+            </div>
             
             <div class="game-grid" id="gameGrid"></div>
 
-            <footer class="footer">Copyright © 2025 FUNLET Platform. All rights reserved.</footer>
+            <footer class="site-footer">
+                <div class="footer-content">
+                    <div class="footer-brand">
+                        <h3>FUNLET Platform</h3>
+                        <p>Global Hyper-Casual Game Station.<br>Play Anywhere, Anytime.</p>
+                    </div>
+                    <div class="footer-links">
+                        <a href="#">서비스 이용약관</a>
+                        <a href="#">개인정보처리방침</a>
+                        <a href="mailto:biz@funlet.io">제휴/광고 문의</a>
+                        <a href="#">개발자 지원</a>
+                    </div>
+                </div>
+                <p class="copyright">Copyright © 2025 FUNLET Corp. All rights reserved.</p>
+            </footer>
         </main>
     </div>
     
@@ -98,50 +304,52 @@
         let allGames = [];
         let allCategories = [];
 
-        // 페이지 로드 시 데이터 불러오기
         window.onload = async function() {
             const time = new Date().getTime();
             
-            // 1. 카테고리 로드 (어드민에서 저장한 파일)
+            // 카테고리 로드
             try {
                 const catRes = await fetch(`./data/categories.json?v=${time}`);
                 if(catRes.ok) {
                     allCategories = await catRes.json();
                     renderMenu(allCategories);
-                } else {
-                    console.log("카테고리 파일 없음");
                 }
-            } catch(e) { console.error(e); }
+            } catch(e) {}
 
-            // 2. 게임 로드 (어드민에서 저장한 파일)
+            // 게임 로드
             try {
                 const gameRes = await fetch(`./data/games.json?v=${time}`);
                 if(gameRes.ok) {
                     allGames = await gameRes.json();
                     renderGames(allGames);
                 } else {
-                    document.getElementById('gameGrid').innerHTML = '<p style="color:#888;">등록된 게임이 없습니다.</p>';
+                    document.getElementById('gameGrid').innerHTML = '<p style="color:#666;">등록된 게임이 없습니다.</p>';
                 }
-            } catch(e) { console.error(e); }
+            } catch(e) {}
         };
 
-        // 메뉴 그리기
+        // [수정됨] 이모지 제거 & 심플한 메뉴 렌더링
         function renderMenu(categories) {
             const menuContainer = document.getElementById('categoryMenu');
             let html = '';
             categories.forEach(cat => {
-                html += `<a href="#" onclick="filterGames('${cat.id}')" class="menu-item"><i class="fa-solid ${cat.icon}"></i> ${cat.name}</a>`;
+                // 아이콘 클래스(fa-...)가 있으면 쓰고, 없으면 기본 점(circle) 아이콘 사용
+                // 이름 옆에 붙은 이모지는 표시하지 않음 (순수 텍스트만)
+                const iconClass = cat.icon || "fa-solid fa-circle-small"; 
+                html += `
+                <a href="#" onclick="filterGames('${cat.id}')" class="menu-item">
+                    <i class="${iconClass}"></i> ${cat.name}
+                </a>`;
             });
             menuContainer.innerHTML = html;
         }
 
-        // 게임 그리기
         function renderGames(games) {
             const grid = document.getElementById('gameGrid');
             grid.innerHTML = "";
             
             if(games.length === 0) {
-                grid.innerHTML = '<p style="color:#888;">표시할 게임이 없습니다.</p>';
+                grid.innerHTML = '<p style="color:#666; padding:20px;">표시할 게임이 없습니다.</p>';
                 return;
             }
 
@@ -152,8 +360,8 @@
                         <img src="${game.thumb}" onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
                     </div>
                     <div class="game-info">
-                        <h3 style="margin:0;">${game.title}</h3>
-                        <span style="font-size:0.8rem; color:#888;">${game.desc}</span>
+                        <h3 class="game-title">${game.title}</h3>
+                        <span class="game-tags">${game.desc}</span>
                     </div>
                 </a>
                 `;
@@ -161,18 +369,17 @@
             });
         }
 
-        // 필터링
         function filterGames(category) {
             document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
             event.currentTarget.classList.add('active');
             toggleMenu(false);
 
             if(category === 'all') {
-                document.getElementById('pageTitle').innerText = "🔥 전체 게임 목록";
+                document.getElementById('pageTitle').innerText = "Trending Games";
                 renderGames(allGames);
             } else {
                 const catName = allCategories.find(c => c.id === category)?.name || category;
-                document.getElementById('pageTitle').innerText = `📂 ${catName}`;
+                document.getElementById('pageTitle').innerText = `${catName}`;
                 const filtered = allGames.filter(g => g.category === category);
                 renderGames(filtered);
             }
@@ -181,7 +388,6 @@
         function toggleMenu(forceState) {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.querySelector('.menu-overlay');
-            const closeBtn = document.getElementById('closeBtn');
             
             if (forceState === false) {
                 sidebar.classList.remove('active');
@@ -190,7 +396,6 @@
                 sidebar.classList.toggle('active');
                 overlay.classList.toggle('active');
             }
-            closeBtn.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
         }
 
         const searchInput = document.getElementById('searchInput');
