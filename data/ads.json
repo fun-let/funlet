@@ -22,8 +22,8 @@
     "content": "<ins class=\"kakao_ad_area\" style=\"display:none;\"\ndata-ad-unit = \"DAN-TNIPrUydqRGlpYb2\"\ndata-ad-width = \"320\"\ndata-ad-height = \"100\"></ins>\n<script type=\"text/javascript\" src=\"//t1.daumcdn.net/kas/static/ba.min.js\" async></script>"
   },
   "interstitial": {
-    "type": "image",
-    "content": "https://fun-let.github.io/fun-let.github.io/images/ad_full.png",
+    "type": "code",
+    "content": "<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6121934538430351\"\n     crossorigin=\"anonymous\"></script>\n<!-- Funlet_Reward_Popup -->\n<ins class=\"adsbygoogle\"\n     style=\"display:block\"\n     data-ad-client=\"ca-pub-6121934538430351\"\n     data-ad-slot=\"2726031411\"\n     data-ad-format=\"auto\"\n     data-full-width-responsive=\"true\"></ins>\n<script>\n     (adsbygoogle = window.adsbygoogle || []).push({});\n</script>",
     "link": "https://naver.com"
   }
 }
