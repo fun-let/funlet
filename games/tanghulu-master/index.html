@@ -48,13 +48,21 @@
         }
         .fruit-on-stick { width: 60px; height: 60px; object-fit: contain; margin-bottom: -15px; z-index: 5; animation: rubberBand 0.3s; filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.1)); }
 
-        /* 하단 과일 버튼 */
-        .controls { 
-            background: white; padding: 15px; border-top: 2px solid #ffccd5; 
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-            /* 높이를 고정해서 밀림 방지 */
-            height: 200px; flex-shrink: 0;
-        }
+/* [수정 후] 이렇게 바꾸세요! */
+.controls { 
+    background: white; padding: 10px; border-top: 2px solid #ffccd5; 
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    
+    /* 높이를 자동으로 늘어나게 하되, 너무 크면 스크롤 */
+    height: auto; 
+    max-height: 35vh; /* 화면 높이의 35%까지만 차지 */
+    overflow-y: auto; /* 넘치면 스크롤 */
+    flex-shrink: 0;
+    padding-bottom: 20px; /* 터치 여유 공간 */
+}
+
+/* 과일 버튼 글자 크기 조금 줄여서 꽉 차게 */
+.fruit-name { font-size: 0.8rem; color: #555; margin-top: 3px; }
         
         .fruit-btn {
             background: #fff; border: 2px solid #eee; border-radius: 15px; 
