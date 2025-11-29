@@ -232,15 +232,21 @@
             else gameLoop = requestAnimationFrame(update);
         }
 
-        function gameOver() {
-            isGameOver = true; cancelAnimationFrame(gameLoop);
+function gameOver() {
+            isGameOver = true; 
+            cancelAnimationFrame(gameLoop);
             document.getElementById('bgm').pause();
-            if(score > bestScore) { bestScore = score; localStorage.setItem('skyJumpBestV3', bestScore); document.getElementById('bestDisplay').innerText = bestScore; }
+            
+            if(score > bestScore) { 
+                bestScore = score; 
+                localStorage.setItem('skyJumpBestV3', bestScore); 
+                document.getElementById('bestDisplay').innerText = bestScore; 
+            }
+            
             document.getElementById('finalScore').innerText = score;
             document.getElementById('gameOverScreen').style.display = 'flex';
-        }
 
-// ▼▼▼ [추가] 이 한 줄이면 전면광고가 뜹니다! ▼▼▼
+            // ▼▼▼ [수정된 위치] 괄호 닫기 전에 넣어야 합니다! ▼▼▼
             if(window.showInterstitial) window.showInterstitial(); 
         }
 
