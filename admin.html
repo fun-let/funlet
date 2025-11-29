@@ -3,54 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FUNLET 어드민 V9 - Masterpiece</title>
+    <title>FUNLET Admin V10</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --sidebar-w: 260px; --primary: #00ff9d; --bg: #121212; --panel: #1e1e1e; --danger: #ff4757; }
         body { margin: 0; background: var(--bg); color: #fff; font-family: 'Noto Sans KR'; display: flex; height: 100vh; overflow: hidden; }
         
-        /* 사이드바 */
         .sidebar { width: var(--sidebar-w); background: #1a1a1a; border-right: 1px solid #333; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; flex-shrink: 0; }
         .logo { font-size: 1.5rem; color: var(--primary); font-weight: bold; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
         .menu-item { padding: 15px; color: #aaa; cursor: pointer; border-radius: 10px; margin-bottom: 5px; transition: 0.2s; display: flex; align-items: center; gap: 10px; font-weight: 500; }
         .menu-item:hover, .menu-item.active { background: rgba(0, 255, 157, 0.1); color: var(--primary); }
         
-        /* 컨텐츠 */
         .content { flex: 1; padding: 40px; overflow-y: auto; background: var(--bg); position: relative; }
         .page { display: none; animation: fadeIn 0.3s; }
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        h2 { border-bottom: 2px solid #333; padding-bottom: 15px; margin-top: 0; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
-        
-        /* 폼 요소 */
+        h2 { border-bottom: 2px solid #333; padding-bottom: 15px; margin-top: 0; color: var(--primary); }
         .card { background: #222; padding: 20px; border-radius: 10px; border: 1px solid #333; margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; color: #ccc; font-size: 0.9rem; }
-        input, select, textarea { width: 100%; padding: 12px; background: #111; border: 1px solid #444; color: white; border-radius: 8px; box-sizing: border-box; margin-bottom: 10px; font-family: inherit; }
-        input:focus, select:focus { border-color: var(--primary); outline: none; }
         
-        /* 버튼 */
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #ccc; font-size: 0.9rem; }
+        input, select, textarea { width: 100%; padding: 12px; background: #111; border: 1px solid #444; color: white; border-radius: 8px; box-sizing: border-box; margin-bottom: 10px; font-family: 'Noto Sans KR'; }
+        textarea { font-family: 'Consolas', monospace; line-height: 1.5; background: #0f0f0f; color: #a6e22e; } /* 코드 에디터 느낌 */
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); outline: none; }
+        
         button { padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; transition: 0.2s; }
         .btn-primary { background: var(--primary); color: black; width: 100%; padding: 15px; font-size: 1.1rem; }
         .btn-primary:hover { background: #00cc7d; }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-sm { padding: 5px 10px; font-size: 0.8rem; width: auto; }
-        
-        /* 리스트 스타일 (카테고리/게임 목록) */
-        .list-row { display: flex; gap: 10px; align-items: center; background: #2a2a2a; padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #333; }
-        .list-row input { margin-bottom: 0; background: #1a1a1a; border: 1px solid #444; }
-        
-        /* 파일 그리드 (자산 관리) */
+        .btn-danger { background: var(--danger); color: white; width: auto; }
+        .btn-sm { padding: 5px 10px; font-size: 0.8rem; width: auto; background: #444; color: white; }
+
         .file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; margin-top: 15px; }
         .file-card { background: #2a2a2a; border: 1px solid #444; border-radius: 10px; padding: 10px; text-align: center; cursor: pointer; transition: 0.2s; position: relative; }
         .file-card:hover { border-color: var(--primary); transform: translateY(-3px); }
         .file-card img { width: 100%; height: 80px; object-fit: contain; background: #000; border-radius: 5px; margin-bottom: 5px; }
+        .file-icon { font-size: 3rem; color: #666; margin-bottom: 10px; display: block; }
         .file-name { font-size: 0.75rem; color: #ddd; word-break: break-all; }
-        .file-type-audio { display: flex; align-items: center; justify-content: center; height: 80px; background: #333; border-radius: 5px; margin-bottom: 5px; color: #aaa; font-size: 2rem; }
 
         .loading { text-align: center; color: #888; padding: 20px; }
-        .badge { background: #333; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; color: #aaa; margin-left: 10px; }
     </style>
 </head>
 <body>
@@ -58,8 +49,8 @@
     <div class="sidebar">
         <div class="logo"><i class="fa-solid fa-gamepad"></i> FUNLET ADMIN</div>
         
-        <div class="menu-item active" onclick="goPage('category')"><i class="fa-solid fa-list"></i> 카테고리 관리</div>
-        <div class="menu-item" onclick="goPage('game')"><i class="fa-solid fa-chess-board"></i> 게임 관리</div>
+        <div class="menu-item active" onclick="goPage('game')"><i class="fa-solid fa-code"></i> 게임/코드 관리</div>
+        <div class="menu-item" onclick="goPage('category')"><i class="fa-solid fa-list"></i> 카테고리 관리</div>
         <div class="menu-item" onclick="goPage('assets')"><i class="fa-solid fa-folder-open"></i> 자산(이미지/소리)</div>
         <div class="menu-item" onclick="goPage('link')"><i class="fa-solid fa-link"></i> 배너 링크</div>
 
@@ -72,23 +63,12 @@
 
     <div class="content">
 
-        <div id="page-category" class="page active">
-            <h2>📂 카테고리 관리 <button class="btn-sm" style="background:#444; color:white;" onclick="addCategoryRow()">+ 추가</button></h2>
-            <p style="color:#aaa; font-size:0.9rem; margin-bottom:20px;">* 카테고리 이름을 수정하거나 순서를 변경할 수 있습니다.</p>
-            
-            <div id="categoryList">
-                <div class="loading">데이터를 불러오는 중...</div>
-            </div>
-            <button class="btn-primary" onclick="saveCategories()">카테고리 변경사항 저장</button>
-        </div>
-
-        <div id="page-game" class="page">
-            <h2>🎮 게임 관리 / 수정</h2>
+        <div id="page-game" class="page active">
+            <h2>🎮 게임 정보 및 코드 수정</h2>
             
             <div class="card">
-                <h3>✏️ 게임 정보 수정 & 신규 생성</h3>
                 <div class="form-group">
-                    <label>게임 선택 (수정 시 선택, 신규는 비워둠)</label>
+                    <label>수정할 게임 선택 (신규 생성은 맨 위 선택)</label>
                     <select id="gameSelector" onchange="selectGameForEdit()">
                         <option value="">-- 신규 게임 만들기 --</option>
                     </select>
@@ -96,7 +76,7 @@
 
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
                     <div>
-                        <label>게임 ID (폴더명, 수정불가)</label>
+                        <label>게임 ID (폴더명, 띄어쓰기 금지)</label>
                         <input type="text" id="gId" placeholder="예: space-merge">
                     </div>
                     <div>
@@ -105,45 +85,49 @@
                     </div>
                 </div>
 
-                <label>카테고리 선택</label>
-                <select id="gCategory">
-                    <option>카테고리 로딩 중...</option>
-                </select>
+                <label>카테고리</label>
+                <select id="gCategory"><option>로딩 중...</option></select>
 
-                <div style="display:flex; gap:10px; align-items:center; margin-top:10px;">
-                    <div style="flex:1">
-                        <label>썸네일 이미지</label>
-                        <input type="text" id="gThumbPath" placeholder="이미지 경로 자동 입력됨" readonly style="background:#222; color:#777;">
-                    </div>
-                    <button onclick="alert('자산 관리 탭에서 썸네일을 업로드하고 경로를 복사해오세요!')" style="height:42px; margin-top:18px; background:#444; color:white;">경로 찾기</button>
+                <label>썸네일 경로</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="gThumbPath" placeholder="이미지 경로">
+                    <button class="btn-sm" onclick="alert('자산 탭에서 업로드 후 경로를 복사해오세요!')">찾기</button>
                 </div>
 
-                <button class="btn-primary" onclick="saveGameData()" style="margin-top:20px;">게임 정보 저장 (games.json)</button>
+                <hr style="border:0; border-top:1px solid #444; margin: 20px 0;">
+
+                <label>💻 게임 HTML 코드 (여기서 직접 수정하세요)</label>
+                <textarea id="gCode" style="height: 400px;" placeholder="게임을 선택하면 코드를 불러옵니다..."></textarea>
+                <div style="text-align:right; margin-top:5px; font-size:0.8rem; color:#aaa;">* 저장 누르면 index.html 파일이 덮어씌워집니다.</div>
+
+                <button class="btn-primary" onclick="saveGameData()" style="margin-top:20px;">모든 변경사항 저장 (코드 포함)</button>
             </div>
+        </div>
+
+        <div id="page-category" class="page">
+            <h2>📂 카테고리 관리 <button class="btn-sm" onclick="addCategoryRow()">+ 추가</button></h2>
+            <div id="categoryList"></div>
+            <button class="btn-primary" onclick="saveCategories()">변경사항 저장</button>
         </div>
 
         <div id="page-assets" class="page">
             <h2>🖼️ 자산 및 파일 관리</h2>
-            
             <div class="card">
-                <label>📂 폴더 선택</label>
                 <div style="display:flex; gap:10px;">
-                    <select id="folderSelect" onchange="loadFiles(this.value)" style="flex:1;">
-                        <option value="">토큰 입력 후 새로고침 하세요</option>
+                    <select id="folderSelect" onchange="loadFolderFiles(this.value)" style="flex:1;">
+                        <option value="">폴더 선택...</option>
                     </select>
-                    <button onclick="scanFolders()" style="background:#444; color:white; width:100px;">🔄 스캔</button>
+                    <button onclick="scanFolders()" class="btn-sm">🔄 스캔</button>
                 </div>
             </div>
-
-            <div class="card" id="uploadArea" style="display:none;">
-                <h3 style="margin-top:0;">📤 파일 업로드 / 교체</h3>
-                <p style="font-size:0.9rem; color:#aaa;">파일을 선택하면 현재 폴더에 업로드됩니다. (같은 이름이면 덮어쓰기)</p>
-                
+            
+            <div class="card">
+                <label>📤 파일 업로드 (모든 형식 가능)</label>
                 <div style="display:flex; gap:10px; align-items:center;">
-                    <input type="text" id="uploadName" placeholder="파일명 (예: player.png)" style="flex:1;">
+                    <input type="text" id="uploadName" placeholder="파일명 (예: bgm.mp3)" style="flex:1;">
                     <input type="file" id="uploadFile" style="flex:1;">
                 </div>
-                <button class="btn-primary" onclick="uploadAsset()" style="margin-top:10px;">서버에 전송하기</button>
+                <button class="btn-primary" onclick="uploadAsset()" style="margin-top:10px; padding:10px;">업로드</button>
             </div>
 
             <div id="fileGrid" class="file-grid"></div>
@@ -151,8 +135,8 @@
 
         <div id="page-link" class="page">
             <h2>🔗 배너 링크 관리</h2>
-            <div id="linkList">로딩 중...</div>
-            <button class="btn-primary" onclick="saveLinks()" style="margin-top:20px;">링크 저장하기</button>
+            <div id="linkList"></div>
+            <button class="btn-primary" onclick="saveLinks()" style="margin-top:20px;">링크 저장</button>
         </div>
 
     </div>
@@ -160,94 +144,43 @@
     <script>
         const USER = 'fun-let';
         const REPO = 'funlet';
-        let categories = [];
-        let games = [];
-        let catsSha = null;
-        let gamesSha = null;
-        let adsData = {};
-        let adsSha = null;
+        let categories = [], games = [], adsData = {};
+        let catsSha = null, gamesSha = null, adsSha = null;
         let currentPath = "";
 
-        // 초기화
         window.onload = () => {
             const t = localStorage.getItem('token');
             if(t) { document.getElementById('token').value = t; loadAllData(); }
         }
         function saveToken() { localStorage.setItem('token', document.getElementById('token').value); loadAllData(); }
         
-        function goPage(page) {
+        function goPage(p) {
             document.querySelectorAll('.menu-item').forEach(e=>e.classList.remove('active'));
             event.currentTarget.classList.add('active');
             document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
-            document.getElementById('page-'+page).classList.add('active');
+            document.getElementById('page-'+p).classList.add('active');
         }
 
-        // 통합 데이터 로드
         async function loadAllData() {
             const token = document.getElementById('token').value;
             if(!token) return;
+            
+            // 데이터 병렬 로드
+            await Promise.all([loadCategories(), loadGames(), scanFolders(), loadLinks()]);
+        }
 
-            // 1. 카테고리 로드
-            try {
-                let res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/data/categories.json`, {headers:{Authorization:`token ${token}`}});
-                let d = await res.json();
-                catsSha = d.sha;
-                categories = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(d.content), c=>c.charCodeAt(0))));
-                renderCategories();
-                updateCategoryDropdowns();
-            } catch(e) { console.log("카테고리 로드 실패 (파일 없음?)"); }
-
-            // 2. 게임 로드
+        // --- 1. 게임 & 코드 관리 ---
+        async function loadGames() {
+            const token = document.getElementById('token').value;
             try {
                 let res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/data/games.json`, {headers:{Authorization:`token ${token}`}});
                 let d = await res.json();
                 gamesSha = d.sha;
-                games = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(d.content), c=>c.charCodeAt(0))));
+                games = JSON.parse(decodeContent(d.content));
                 updateGameSelector();
-            } catch(e) { console.log("게임 로드 실패"); }
-
-            // 3. 폴더 스캔
-            scanFolders();
-            
-            // 4. 배너 링크 로드
-            loadLinks();
+            } catch(e) { console.log("게임 목록 로드 실패"); }
         }
 
-        // --- 1. 카테고리 관리 기능 ---
-        function renderCategories() {
-            const list = document.getElementById('categoryList');
-            list.innerHTML = "";
-            categories.forEach((cat, idx) => {
-                list.innerHTML += `
-                    <div class="list-row">
-                        <input type="text" value="${cat.id}" placeholder="ID (영어)" style="width:20%;" onchange="categories[${idx}].id=this.value">
-                        <input type="text" value="${cat.name}" placeholder="이름 (한글)" style="width:40%;" onchange="categories[${idx}].name=this.value">
-                        <input type="text" value="${cat.icon}" placeholder="아이콘 클래스" style="width:30%;" onchange="categories[${idx}].icon=this.value">
-                        <button class="btn-danger btn-sm" onclick="deleteCategory(${idx})">삭제</button>
-                    </div>`;
-            });
-        }
-        function addCategoryRow() {
-            categories.push({id:"", name:"", icon:"fa-solid fa-gamepad"});
-            renderCategories();
-        }
-        function deleteCategory(idx) {
-            if(confirm("정말 삭제하시겠습니까?")) { categories.splice(idx, 1); renderCategories(); }
-        }
-        async function saveCategories() {
-            await uploadFile('data/categories.json', JSON.stringify(categories, null, 2), catsSha, "Update Categories");
-            alert("카테고리 저장 완료! 메인메뉴에 바로 반영됩니다.");
-            loadAllData();
-        }
-
-        // --- 2. 게임 관리 기능 ---
-        function updateCategoryDropdowns() {
-            const sel = document.getElementById('gCategory');
-            sel.innerHTML = "";
-            categories.forEach(c => {
-                sel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-            });
-        }
         function updateGameSelector() {
             const sel = document.getElementById('gameSelector');
             sel.innerHTML = '<option value="">-- 신규 게임 만들기 --</option>';
@@ -255,63 +188,126 @@
                 sel.innerHTML += `<option value="${idx}">[수정] ${g.title} (${g.id})</option>`;
             });
         }
-        function selectGameForEdit() {
+
+        async function selectGameForEdit() {
             const idx = document.getElementById('gameSelector').value;
+            const codeArea = document.getElementById('gCode');
+            
             if(idx === "") {
-                // 신규 모드 초기화
+                // 신규 모드
                 document.getElementById('gId').value = "";
                 document.getElementById('gId').disabled = false;
                 document.getElementById('gTitle').value = "";
                 document.getElementById('gThumbPath').value = "";
+                codeArea.value = "";
             } else {
                 // 수정 모드
                 const g = games[idx];
                 document.getElementById('gId').value = g.id;
-                document.getElementById('gId').disabled = true; // ID 수정 불가
+                document.getElementById('gId').disabled = true; 
                 document.getElementById('gTitle').value = g.title;
                 document.getElementById('gCategory').value = g.category;
                 document.getElementById('gThumbPath').value = g.thumb;
+                
+                // [핵심] 실제 게임 코드(HTML) 불러오기
+                codeArea.value = "코드 로딩 중...";
+                try {
+                    const token = document.getElementById('token').value;
+                    const path = `games/${g.id}/index.html`;
+                    const res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${path}`, {headers:{Authorization:`token ${token}`}});
+                    
+                    if(res.ok) {
+                        const d = await res.json();
+                        codeArea.value = decodeContent(d.content);
+                    } else {
+                        codeArea.value = "<!DOCTYPE html>\n<html>\n\n</html>";
+                    }
+                } catch(e) {
+                    codeArea.value = "코드 로드 실패: " + e;
+                }
             }
         }
+
         async function saveGameData() {
             const id = document.getElementById('gId').value;
             const title = document.getElementById('gTitle').value;
             const catId = document.getElementById('gCategory').value;
             const thumb = document.getElementById('gThumbPath').value;
-            
-            if(!id || !title) return alert("ID와 제목은 필수입니다.");
+            const code = document.getElementById('gCode').value;
+            const token = document.getElementById('token').value;
 
-            // 카테고리 이름 찾기 (설명용)
+            if(!id || !title || !code) return alert("필수 정보를 입력하세요.");
+
+            // 1. games.json 업데이트
             const catName = categories.find(c => c.id === catId)?.name || "기타";
-
-            const newEntry = {
-                id: id, title: title, category: catId,
-                desc: catName, thumb: thumb
-            };
-
+            const newEntry = { id, title, category: catId, desc: catName, thumb };
             const idx = games.findIndex(g => g.id === id);
-            if(idx > -1) games[idx] = newEntry; // 수정
-            else games.push(newEntry); // 신규
+            
+            if(idx > -1) games[idx] = newEntry; else games.push(newEntry);
+            
+            await uploadFile('data/games.json', JSON.stringify(games, null, 2), gamesSha, "Update Games List");
 
-            await uploadFile('data/games.json', JSON.stringify(games, null, 2), gamesSha, "Update Games");
-            alert("게임 정보 저장 완료!");
-            loadAllData();
+            // 2. index.html 코드 업데이트 (기존 파일 체크 후 덮어쓰기)
+            let codeSha = null;
+            try {
+                const res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/games/${id}/index.html`, {headers:{Authorization:`token ${token}`}});
+                if(res.ok) codeSha = (await res.json()).sha;
+            } catch(e){}
+
+            await uploadFile(`games/${id}/index.html`, code, codeSha, `Update game code ${id}`);
+            
+            alert("저장 완료! 게임 목록과 코드가 모두 업데이트 되었습니다.");
+            loadGames(); // 목록 갱신
         }
 
-        // --- 3. 자산 관리 (시각적 브라우저) ---
+        // --- 2. 카테고리 관리 ---
+        async function loadCategories() {
+            const token = document.getElementById('token').value;
+            try {
+                let res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/data/categories.json`, {headers:{Authorization:`token ${token}`}});
+                let d = await res.json();
+                catsSha = d.sha;
+                categories = JSON.parse(decodeContent(d.content));
+                renderCats();
+                const sel = document.getElementById('gCategory');
+                sel.innerHTML = "";
+                categories.forEach(c => sel.innerHTML += `<option value="${c.id}">${c.name}</option>`);
+            } catch(e) {}
+        }
+        function renderCats() {
+            const list = document.getElementById('categoryList');
+            list.innerHTML = "";
+            categories.forEach((c, idx) => {
+                list.innerHTML += `
+                    <div class="list-row">
+                        <input type="text" value="${c.id}" placeholder="ID" style="width:20%;" onchange="categories[${idx}].id=this.value">
+                        <input type="text" value="${c.name}" placeholder="이름" style="width:40%;" onchange="categories[${idx}].name=this.value">
+                        <input type="text" value="${c.icon}" placeholder="아이콘" style="width:30%;" onchange="categories[${idx}].icon=this.value">
+                        <button class="btn-danger btn-sm" onclick="deleteCategory(${idx})">삭제</button>
+                    </div>`;
+            });
+        }
+        function addCategoryRow() { categories.push({id:"", name:"", icon:"fa-solid fa-gamepad"}); renderCats(); }
+        function deleteCategory(idx) { if(confirm("삭제?")) { categories.splice(idx, 1); renderCats(); } }
+        async function saveCategories() {
+            await uploadFile('data/categories.json', JSON.stringify(categories, null, 2), catsSha, "Update Categories");
+            alert("카테고리 저장 완료!");
+        }
+
+        // --- 3. 자산 관리 (모든 파일 보기) ---
         async function scanFolders() {
             const token = document.getElementById('token').value;
             const sel = document.getElementById('folderSelect');
             sel.innerHTML = '<option>스캔 중...</option>';
             try {
-                // images와 audio 폴더 스캔
-                const dirs = ['images', 'audio'];
-                sel.innerHTML = '<option value="">-- 폴더를 선택하세요 --</option>';
+                // 루트, games, images, audio 스캔
+                const dirs = ['images', 'audio', 'games'];
+                sel.innerHTML = '<option value="">-- 폴더 선택 --</option>';
                 
                 for(let d of dirs) {
                     let res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${d}`, {headers:{Authorization:`token ${token}`}});
                     let data = await res.json();
-                    sel.innerHTML += `<option value="${d}/">📂 ${d}/ (루트)</option>`;
+                    sel.innerHTML += `<option value="${d}/">📂 ${d}/</option>`;
                     data.forEach(item => {
                         if(item.type === 'dir') sel.innerHTML += `<option value="${item.path}/">   └ ${item.name}/</option>`;
                     });
@@ -319,42 +315,32 @@
             } catch(e) { console.error(e); }
         }
 
-        async function loadFiles(path) {
+        async function loadFolderFiles(path) {
             if(!path) return;
             currentPath = path;
             const token = document.getElementById('token').value;
             const grid = document.getElementById('fileGrid');
-            const upArea = document.getElementById('uploadArea');
-            
             grid.innerHTML = '<div class="loading">로딩 중...</div>';
-            upArea.style.display = 'block';
 
             try {
                 const res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${path}`, {headers:{Authorization:`token ${token}`}});
                 const data = await res.json();
                 grid.innerHTML = '';
                 
-                if(data.length === 0) grid.innerHTML = '<div class="loading">파일이 없습니다.</div>';
-
                 data.forEach(item => {
                     if(item.type === 'file') {
                         const div = document.createElement('div');
                         div.className = 'file-card';
                         
-                        // 이미지 미리보기
                         if(item.name.match(/\.(png|jpg|jpeg|gif)$/i)) {
-                            div.innerHTML = `<img src="${item.download_url}?t=${Date.now()}"><div class="file-name">${item.name}</div>`;
+                            div.innerHTML = `<img src="${item.download_url}"><div class="file-name">${item.name}</div>`;
                         } else {
-                            div.innerHTML = `<div class="file-type-audio"><i class="fa-solid fa-file-audio"></i></div><div class="file-name">${item.name}</div>`;
+                            div.innerHTML = `<div class="file-icon"><i class="fa-regular fa-file"></i></div><div class="file-name">${item.name}</div>`;
                         }
                         
                         div.onclick = () => {
                             document.getElementById('uploadName').value = item.name;
-                            // 경로 복사 (게임 설정용)
-                            if(confirm(`경로를 복사할까요?\n${item.path}`)) {
-                                navigator.clipboard.writeText(item.path);
-                                alert("경로 복사됨! 게임 관리 탭에서 붙여넣으세요.");
-                            }
+                            if(confirm(`경로를 복사할까요?\n${item.path}`)) navigator.clipboard.writeText(item.path);
                         };
                         grid.appendChild(div);
                     }
@@ -365,21 +351,20 @@
         async function uploadAsset() {
             const name = document.getElementById('uploadName').value;
             const file = document.getElementById('uploadFile').files[0];
-            if(!name || !file) return alert("파일명과 파일을 확인하세요.");
+            if(!name || !file) return alert("확인 필요");
             
             const reader = new FileReader();
             reader.onload = async function() {
                 const content = reader.result.split(',')[1];
-                // 기존 SHA 체크
                 let sha = null;
                 try {
                     let res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${currentPath}${name}`, {headers:{Authorization:`token ${document.getElementById('token').value}`}});
                     if(res.ok) sha = (await res.json()).sha;
                 } catch(e){}
                 
-                await uploadRawFile(currentPath + name, content, sha);
+                await uploadFileRaw(currentPath + name, content, sha);
                 alert("업로드 성공!");
-                loadFiles(currentPath);
+                loadFolderFiles(currentPath);
             };
             reader.readAsDataURL(file);
         }
@@ -387,38 +372,44 @@
         // --- 4. 링크 관리 ---
         async function loadLinks() {
             const token = document.getElementById('token').value;
-            const list = document.getElementById('linkList');
             try {
                 let res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/data/ads.json`, {headers:{Authorization:`token ${token}`}});
                 let d = await res.json();
                 adsSha = d.sha;
-                adsData = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(d.content), c=>c.charCodeAt(0))));
-                
+                adsData = JSON.parse(decodeContent(d.content));
+                const list = document.getElementById('linkList');
                 list.innerHTML = "";
                 for(const [k,v] of Object.entries(adsData)) {
                     list.innerHTML += `<div class="list-row"><span class="link-key">${k}</span><input type="text" id="lnk-${k}" value="${v.link}" style="width:70%;"></div>`;
                 }
-            } catch(e){ list.innerHTML = "로드 실패"; }
+            } catch(e){}
         }
         async function saveLinks() {
             for(const k of Object.keys(adsData)) adsData[k].link = document.getElementById(`lnk-${k}`).value;
             await uploadFile('data/ads.json', JSON.stringify(adsData, null, 2), adsSha, "Update Links");
-            alert("링크 저장 완료!");
-            loadLinks(); // SHA 갱신
+            alert("저장 완료!");
+            loadLinks();
         }
 
-        // --- API 유틸 ---
+        // --- 유틸리티 ---
+        function decodeContent(base64) {
+            return new TextDecoder().decode(Uint8Array.from(atob(base64), c => c.charCodeAt(0)));
+        }
+        function encodeContent(str) {
+            return btoa(unescape(encodeURIComponent(str)));
+        }
+
         async function uploadFile(path, content, sha, msg) {
             const token = document.getElementById('token').value;
-            const body = { message: msg, content: btoa(unescape(encodeURIComponent(content))) };
+            const body = { message: msg, content: encodeContent(content) };
             if(sha) body.sha = sha;
             await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${path}`, {
                 method: 'PUT', headers: {'Authorization':`token ${token}`}, body: JSON.stringify(body)
             });
         }
-        async function uploadRawFile(path, base64, sha) {
+        async function uploadFileRaw(path, base64, sha) {
             const token = document.getElementById('token').value;
-            const body = { message: "Upload asset", content: base64 };
+            const body = { message: "Asset Upload", content: base64 };
             if(sha) body.sha = sha;
             await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${path}`, {
                 method: 'PUT', headers: {'Authorization':`token ${token}`}, body: JSON.stringify(body)
