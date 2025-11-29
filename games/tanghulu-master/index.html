@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>탕후루 마스터 V3 - 스피드 주문</title>
+    <title>탕후루 마스터 V4</title>
     <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        :root { --bg: #FFF0F5; --primary: #FF6B6B; --timer-bg: #eee; --timer-fill: #00ff9d; }
+        :root { --bg: #FFF0F5; --primary: #FF6B6B; }
         body { margin: 0; background: var(--bg); font-family: 'Jua', sans-serif; overflow: hidden; user-select: none; display:flex; justify-content:center; height: 100vh; height: 100dvh; }
         
         #gameContainer {
@@ -18,75 +18,85 @@
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
         }
 
-/* [수정 1] 헤더 높이 고정 */
-.header { 
-    padding: 10px 15px; /* 패딩 줄임 */
-    background: white; border-bottom: 2px solid #ffccd5; 
-    display: flex; justify-content: space-between; align-items: center; z-index: 10;
-    height: 50px; flex-shrink: 0; /* 높이 고정 및 찌그러짐 방지 */
-}
+        /* 상단 UI */
+        .header { 
+            padding: 10px 20px; background: white; z-index: 10; 
+            display: flex; justify-content: space-between; align-items: center;
+            height: 50px; border-bottom: 2px solid #ffccd5;
+        }
+        .score-box { font-size: 1.5rem; color: #555; }
+        .score-val { color: var(--primary); font-size: 1.8rem; margin-left: 5px; }
         
         /* 타임바 */
-        .timer-container { width: 100%; height: 10px; background: #eee; position: absolute; top: 0; left: 0; z-index: 20; }
-        .timer-bar { width: 100%; height: 100%; background: var(--primary); transition: width 0.1s linear; }
+        .timer-container { width: 100%; height: 8px; background: #eee; }
+        .timer-bar { width: 100%; height: 100%; background: #00ff9d; transition: width 0.1s linear; }
 
-/* [수정 2] 스테이지(게임화면) 여백 확보 */
-.stage { 
-    flex: 1; position: relative; 
-    background-image: radial-gradient(#fff 20%, #ffe6eb 20%); background-size: 20px 20px; 
-    display: flex; flex-direction: column; 
-    align-items: center; justify-content: flex-end; /* 아래쪽으로 정렬 */
-    padding-bottom: 20px; /* 캐릭터가 컨트롤 패널에 가리지 않게 */
-    min-height: 0; /* Flexbox 버그 방지 */
-}
+        /* 메인 스테이지 */
+        .stage { 
+            flex: 1; position: relative; 
+            background-image: radial-gradient(#fff 20%, #ffe6eb 20%); background-size: 20px 20px; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
         
-        /* 손님 & 말풍선 (주문) */
-        .customer-area { position: relative; display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; }
-        .customer-img { width: 100px; }
+        /* 손님 & 말풍선 */
+        .customer-area { 
+            position: relative; display: flex; flex-direction: column; align-items: center; 
+            margin-bottom: 10px; z-index: 10;
+        }
+        .customer-img { width: 120px; }
+        
+        /* 말풍선 디자인 강화 */
         .bubble { 
             background: white; border: 3px solid #333; padding: 10px 20px; border-radius: 30px; 
-            margin-bottom: 10px; display: flex; gap: 5px; align-items: center; min-height: 40px;
+            margin-bottom: 5px; display: flex; gap: 5px; align-items: center; justify-content: center;
+            min-width: 100px; min-height: 50px; /* 최소 크기 보장 */
             box-shadow: 0 5px 10px rgba(0,0,0,0.1); animation: bounceIn 0.5s;
+            position: relative;
         }
-        .order-icon { width: 35px; height: 35px; object-fit: contain; }
+        /* 말풍선 꼬리 */
+        .bubble::after {
+            content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%);
+            border-width: 10px 10px 0; border-style: solid; border-color: #333 transparent transparent transparent;
+        }
+        .order-icon { width: 40px; height: 40px; object-fit: contain; }
 
-        /* 내 꼬치 */
+        /* [핵심 변경] 가로 꼬치 */
         .my-stick { 
-            width: 12px; height: 200px; background: #d2b48c; border-radius: 5px; 
-            position: relative; display: flex; flex-direction: column-reverse; align-items: center; justify-content: flex-start;
-            border: 2px solid #8b4513; margin-bottom: 20px; padding-bottom: 30px;
+            width: 300px; height: 10px; background: #d2b48c; border-radius: 5px; 
+            position: relative; display: flex; flex-direction: row; /* 가로 정렬 */
+            align-items: center; justify-content: flex-start; /* 왼쪽부터 꽂힘 */
+            border: 2px solid #8b4513; margin-top: 20px; padding-left: 20px;
         }
-        .fruit-on-stick { width: 60px; height: 60px; object-fit: contain; margin-bottom: -15px; z-index: 5; animation: rubberBand 0.3s; filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.1)); }
+        /* 꼬치 손잡이 */
+        .my-stick::before {
+            content: ''; position: absolute; left: -30px; top: -3px;
+            width: 30px; height: 12px; background: #8b4513; border-radius: 5px 0 0 5px;
+        }
+        
+        .fruit-on-stick { 
+            width: 55px; height: 55px; object-fit: contain; 
+            margin-left: -15px; /* 약간 겹치게 */
+            z-index: 5; animation: rubberBand 0.3s; 
+            filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.1)); 
+        }
 
-/* [수정 후] 이렇게 바꾸세요! */
-.controls { 
-    background: white; padding: 10px; border-top: 2px solid #ffccd5; 
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
-    
-    /* 높이를 자동으로 늘어나게 하되, 너무 크면 스크롤 */
-    height: auto; 
-    max-height: 35vh; /* 화면 높이의 35%까지만 차지 */
-    overflow-y: auto; /* 넘치면 스크롤 */
-    flex-shrink: 0;
-    padding-bottom: 20px; /* 터치 여유 공간 */
-}
-
-/* 과일 버튼 글자 크기 조금 줄여서 꽉 차게 */
-.fruit-name { font-size: 0.8rem; color: #555; margin-top: 3px; }
+        /* 하단 과일 버튼 */
+        .controls { 
+            background: white; padding: 10px; border-top: 2px solid #ffccd5; 
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+            height: auto; max-height: 35vh; overflow-y: auto; flex-shrink: 0; padding-bottom: 20px;
+        }
         
         .fruit-btn {
             background: #fff; border: 2px solid #eee; border-radius: 15px; 
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; padding: 5px; transition: 0.1s; position: relative;
+            cursor: pointer; padding: 8px; transition: 0.1s; position: relative;
         }
-        .fruit-btn:active { transform: scale(0.9); background: #f9f9f9; border-color: var(--primary); }
-        .fruit-btn img { width: 50px; height: 50px; object-fit: contain; }
-        .fruit-name { font-size: 0.9rem; color: #555; margin-top: 5px; }
+        .fruit-btn:active { transform: scale(0.95); background: #f9f9f9; border-color: var(--primary); }
+        .fruit-btn img { width: 45px; height: 45px; object-fit: contain; }
+        .fruit-name { font-size: 0.85rem; color: #555; margin-top: 3px; }
         
-        /* 잠금 표시 */
-        .locked { opacity: 0.5; pointer-events: none; filter: grayscale(1); }
-        .lock-icon { position: absolute; font-size: 1.5rem; color: #333; }
-
         /* 게임 오버 화면 */
         #gameOverScreen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -99,7 +109,6 @@
             font-size: 1.5rem; border-radius: 50px; cursor: pointer;
             font-family: 'Jua'; margin-top: 20px; box-shadow: 0 5px 0 #00b870;
         }
-        /* 보상형 광고 버튼 (강조) */
         .btn-revive {
             background: #FF4757; color: white; box-shadow: 0 5px 0 #c0392b;
             animation: pulse 1.5s infinite;
@@ -121,23 +130,22 @@
 
         <div class="header">
             <div class="score-box">점수: <span class="score-val" id="score">0</span></div>
-            <div style="font-size:0.9rem; color:#aaa;">최고기록: <span id="bestScore">0</span></div>
+            <div style="font-size:0.9rem; color:#888;">최고기록: <span id="bestScore">0</span></div>
         </div>
 
         <div class="stage">
             <div class="customer-area">
                 <div class="bubble" id="orderBubble">
-                    준비...
+                    준비중...
                 </div>
-                <img src="../../images/tanghulu/customer.png" class="customer-img" onerror="this.src='../../images/tanghulu/chef.png'">
+                <img src="../../images/tanghulu/customer.png" class="customer-img" 
+                     onerror="this.src='../../images/tanghulu/chef.png';">
             </div>
             
-            <div class="my-stick" id="myStick">
-                </div>
+            <div class="my-stick" id="myStick"></div>
         </div>
 
-        <div class="controls" id="fruitGrid">
-            </div>
+        <div class="controls" id="fruitGrid"></div>
 
         <div class="ad-banner-area" id="ad-game-bottom"></div>
 
@@ -163,27 +171,25 @@
     <script src="../../js/ads.js"></script>
 
     <script>
-        // 과일 목록 (이미지 파일명 필수)
+        // 과일 목록 (이미지 없을 때 대비 이모지 추가)
         const FRUITS = [
-            { id: 0, name: "딸기", img: "fruit_0.png" },
-            { id: 1, name: "귤", img: "fruit_1.png" },
-            { id: 2, name: "샤인", img: "fruit_2.png" },
-            { id: 3, name: "파인", img: "fruit_3.png" },
-            { id: 4, name: "블랙", img: "fruit_4.png" },
-            { id: 5, name: "스페셜", img: "fruit_5.png" }
+            { id: 0, name: "딸기", img: "fruit_0.png", emoji: "🍓" },
+            { id: 1, name: "귤", img: "fruit_1.png", emoji: "🍊" },
+            { id: 2, name: "샤인", img: "fruit_2.png", emoji: "🍇" },
+            { id: 3, name: "파인", img: "fruit_3.png", emoji: "🍍" },
+            { id: 4, name: "블랙", img: "fruit_4.png", emoji: "🍆" },
+            { id: 5, name: "스페셜", img: "fruit_5.png", emoji: "🍡" }
         ];
 
         let score = 0;
         let bestScore = localStorage.getItem('tanghuluBest') || 0;
-        let currentOrder = []; // 손님 주문 [0, 1, 0] 식의 ID 배열
-        let myStack = [];      // 내가 꽂은 과일
-        let maxTime = 100;     // 제한 시간 (게이지용)
+        let currentOrder = []; 
+        let myStack = [];      
         let currentTime = 100; 
         let timerInterval = null;
         let isGameOver = false;
-        let level = 1;         // 난이도
+        let level = 1;         
 
-        // 초기화
         document.getElementById('bestScore').innerText = bestScore;
         renderControls();
         startGame();
@@ -195,9 +201,13 @@
                 const btn = document.createElement('div');
                 btn.className = 'fruit-btn';
                 btn.onclick = () => addToStick(idx);
-                // 이미지 없을 때 대비
-                btn.innerHTML = `<img src="../../images/tanghulu/${f.img}" onerror="this.src='https://via.placeholder.com/50?text=?'">
-                                 <div class="fruit-name">${f.name}</div>`;
+                
+                // 이미지가 없으면 이모지를 보여주는 안전장치 (onerror)
+                btn.innerHTML = `
+                    <img src="../../images/tanghulu/${f.img}" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                    <div style="font-size:2rem; display:none;">${f.emoji}</div>
+                    <div class="fruit-name">${f.name}</div>`;
                 grid.appendChild(btn);
             });
         }
@@ -213,8 +223,7 @@
         }
 
         function newOrder() {
-            // 난이도에 따라 주문 개수 증가 (최대 5개)
-            let count = Math.min(3 + Math.floor(score / 500), 5);
+            let count = Math.min(3 + Math.floor(score / 500), 5); // 최대 5개
             currentOrder = [];
             myStack = [];
             document.getElementById('myStick').innerHTML = "";
@@ -223,48 +232,68 @@
             bubble.innerHTML = "";
 
             for(let i=0; i<count; i++) {
-                // 사용 가능한 과일 종류 내에서 랜덤
                 const fId = Math.floor(Math.random() * FRUITS.length);
                 currentOrder.push(fId);
                 
-                const img = document.createElement('img');
-                img.src = `../../images/tanghulu/${FRUITS[fId].img}`;
-                img.className = "order-icon";
-                bubble.appendChild(img);
+                // 말풍선에도 이미지 없으면 이모지 뜨게 처리
+                const span = document.createElement('span');
+                span.innerHTML = `
+                    <img src="../../images/tanghulu/${FRUITS[fId].img}" class="order-icon" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+                    <span style="font-size:1.5rem; display:none;">${FRUITS[fId].emoji}</span>
+                `;
+                bubble.appendChild(span);
             }
-            
-            // 시간 충전 (난이도 높을수록 시간 빨리 줄어듦)
             currentTime = 100;
         }
 
         function addToStick(fruitId) {
             if(isGameOver) return;
 
-            // 1. 시각 효과
             const stick = document.getElementById('myStick');
+            
+            // 꽂히는 과일 생성 (이미지/이모지 처리)
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <img src="../../images/tanghulu/${FRUITS[fruitId].img}" class="fruit-on-stick"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                <div style="font-size:2.5rem; margin-left:-10px; z-index:5; animation:rubberBand 0.3s; display:none;" class="fruit-on-stick">${FRUITS[fruitId].emoji}</div>
+            `;
+            // div 안의 첫 번째 요소(img)나 두 번째 요소(emoji)를 꺼내서 stick에 붙임
+            // 여기서는 간단하게 innerHTML로 처리한 wrapper를 붙이지 않고 내부 요소만 로직으로 처리
+            // (위의 HTML 구조 단순화를 위해 이미지 태그 직접 생성으로 변경)
+            
             const img = document.createElement('img');
             img.src = `../../images/tanghulu/${FRUITS[fruitId].img}`;
             img.className = 'fruit-on-stick';
+            // 이미지 에러 시 이모지로 대체하는 로직을 동적으로 구현하기 복잡하므로 
+            // 위 컨트롤 패널처럼 CSS/HTML 트릭 대신 JS로 처리
+            img.onerror = function() {
+                this.remove();
+                const emoji = document.createElement('div');
+                emoji.className = 'fruit-on-stick';
+                emoji.style.fontSize = '2.5rem';
+                emoji.style.display = 'flex';
+                emoji.style.alignItems = 'center';
+                emoji.style.justifyContent = 'center';
+                emoji.innerText = FRUITS[fruitId].emoji;
+                stick.appendChild(emoji);
+            };
             stick.appendChild(img);
             
             try{ document.getElementById('sfx-pop').play(); }catch(e){}
 
-            // 2. 로직 검사
             const currentStep = myStack.length;
             if (fruitId === currentOrder[currentStep]) {
-                // 맞음
                 myStack.push(fruitId);
-                
-                // 완성했나?
                 if (myStack.length === currentOrder.length) {
                     score += 100 + (level * 10);
                     showFeedback("성공!", true);
                     try{ document.getElementById('sfx-correct').play(); }catch(e){}
                     updateUI();
-                    setTimeout(newOrder, 200); // 다음 주문
+                    setTimeout(newOrder, 200);
                 }
             } else {
-                // 틀림 -> 게임 오버
                 gameOver("주문 실수!");
             }
         }
@@ -273,16 +302,10 @@
             if(timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(() => {
                 if(isGameOver) return;
-                
-                // 난이도에 따라 시간 감소 속도 증가
                 const decay = 0.5 + (score / 2000); 
                 currentTime -= decay;
-                
                 document.getElementById('timerBar').style.width = currentTime + "%";
-                
-                if(currentTime <= 0) {
-                    gameOver("시간 초과!");
-                }
+                if(currentTime <= 0) gameOver("시간 초과!");
             }, 50);
         }
 
@@ -295,39 +318,30 @@
                 bestScore = score;
                 localStorage.setItem('tanghuluBest', bestScore);
             }
-            
             document.getElementById('finalScore').innerText = score;
             document.getElementById('gameOverScreen').style.display = 'flex';
         }
 
-        // [핵심] 보상형 광고 - 부활 기능
         function watchAdToRevive() {
             if(window.showRewardAd) {
                 window.showRewardAd(() => {
-                    // 광고 시청 완료 시 실행
                     isGameOver = false;
                     document.getElementById('gameOverScreen').style.display = 'none';
-                    currentTime = 100; // 시간 꽉 채워줌
-                    startTimer(); // 타이머 다시 시작
-                    
-                    // 틀렸던 주문 초기화 (다시 기회 줌)
+                    currentTime = 100;
+                    startTimer();
                     myStack = [];
                     document.getElementById('myStick').innerHTML = "";
                 });
             } else {
-                alert("광고 시스템 연결 중...");
+                alert("광고 로딩 중...");
             }
         }
 
-        function resetGame() {
-            startGame();
-        }
-
+        function resetGame() { startGame(); }
         function updateUI() {
             document.getElementById('score').innerText = score;
             document.getElementById('bestScore').innerText = bestScore;
         }
-
         function showFeedback(text, success) {
             const el = document.createElement('div');
             el.className = `feedback ${success ? 'success' : 'fail'}`;
