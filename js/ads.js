@@ -1,6 +1,6 @@
 // [Funlet 광고 시스템 V12 - Reward & Banner]
 const USER = 'fun-let';
-const REPO = 'funlet';
+const REPO = 'fun-let.github.io';
 const DATA_URL = `https://${USER}.github.io/${REPO}/data/ads.json?v=${new Date().getTime()}`;
 
 let adData = {};
