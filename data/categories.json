@@ -18,5 +18,10 @@
     "id": "social",
     "name": "소셜/심리",
     "icon": "fa-heart"
+  },
+  {
+    "id": "puzzle",
+    "name": "퍼즐",
+    "icon": "fa-fuzzle"
   }
 ]
